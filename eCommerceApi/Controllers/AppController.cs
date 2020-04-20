@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ApiCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 
@@ -20,7 +21,7 @@ namespace eCommerceApi.Controllers
         public AppController() { _restApi = AppConfig.Instance().Service; }
 
 
-        [HttpPost("webhooks")]
+        [HttpPost("webhooks/order/create")]
         public async Task<IActionResult> Post()
         {
             try
@@ -36,7 +37,15 @@ namespace eCommerceApi.Controllers
 
                 using (var reader = new StreamReader(Request.Body))
                 {
-                    jsonData = reader.ReadToEnd();
+                    jsonData = await reader.ReadToEndAsync();
+                    if (!string.IsNullOrEmpty(jsonData))
+                    {
+                        var order = JsonConvert.DeserializeObject<Order>(jsonData);
+                        Console.WriteLine("*******************WEB HOOKS*****************");
+                        Console.WriteLine("JSON DATA = {0} ", order);
+                    }
+
+                  
 
                     // Do something
 
@@ -47,43 +56,7 @@ namespace eCommerceApi.Controllers
 
 
 
-
-
-
-                //    if (System.Web.HttpContext.Current.Request.InputStream.CanSeek)
-                //    {
-                //        //Move the cursor to beginning of stream if it has already been by json process
-                //        System.Web.HttpContext.Current.Request.InputStream.Seek(0, SeekOrigin.Begin);
-                //        jsonData = new StreamReader(HttpContext.Current.Request.InputStream).ReadToEnd();
-                //        //Get the value of webhooks header's signature
-                //        hmacHeaderSignature = System.Web.HttpContext.Current.Request.Headers["intuit-signature"];
-                //    }
-
-                //    //Validate webhooks response by hading it with HMACSHA256 algo and comparing it with Intuit's header signature
-                //    bool isRequestvalid = ProcessNotificationData.Validate(jsonData, hmacHeaderSignature);
-
-                //    //If request is valid, send 200 Status to webhooks sever
-                //    if (isRequestvalid == true)
-                //    {
-                //        WebhooksNotificationdto.WebhooksData webhooksData = JsonConvert.DeserializeObject<WebhooksNotificationdto.WebhooksData>(jsonData);
-                //        return Request.CreateResponse(HttpStatusCode.OK, webhooksData);
-                //    }
-
-                //    return Request.CreateResponse(HttpStatusCode.Conflict, "Error");
-
-                //    //Defult pgae displayed will be the Index view page when application is running
-
-
-
-
-                //}
-                //catch (Exception ex)
-                //{
-
-                //    return Request.CreateErrorResponse(HttpStatusCode.InternalServerError, ex);
-                //}
-
-
+        
             }
             catch (Exception ex)
             {
