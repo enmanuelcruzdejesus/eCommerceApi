@@ -94,8 +94,12 @@ namespace ApiCore
         {
             get
             {
-                if (_restApi == null)
-                    _restApi = new  RestAPI(baseUrl, clientid, clientsecret);
+                if (_restApi == null) 
+                {
+                    _restApi = new RestAPI(baseUrl, clientid, clientsecret);
+                   
+                }
+                
 
                 return _restApi;
             }

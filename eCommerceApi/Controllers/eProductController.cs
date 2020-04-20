@@ -15,16 +15,122 @@ namespace eCommerceApi.Controllers
     [ApiController]
     public class eProductController : ControllerBase
     {
+        RestAPI _restApi;
+        public eProductController()
+        {
+            _restApi = AppConfig.Instance().Service;
+        }
+
+
+        [HttpGet("GetAll")]
         public async  Task<IActionResult> Get()
         {
-            var restApi = AppConfig.Instance().Service;
-     //       RestAPI rest = new RestAPI("http://52.71.3.144/wp-json/wc/v3/", "ck_e3763a72e7b9458a6540fdf48d42097db87106cd", "cs_1f204be5002a0d673d7d91e78a6121cfdb908919");
-            WCObject wc = new WCObject(restApi);
 
-            //Get all products
-            var products = await wc.Product.GetAll();
+            try
+            {
+                WCObject wc = new WCObject(_restApi);
 
-            return Ok(products);
+                //Get all products
+                var products = await wc.Product.GetAll();
+
+                return Ok(products);
+
+            }
+            catch (Exception ex )
+            {
+
+                return StatusCode(500, ex);
+            }
+          
         }
+
+
+        [HttpGet("GetById/{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            try
+            {
+                WCObject wc = new WCObject(_restApi);
+
+               
+                var products = await wc.Product.Get(id);
+
+                return Ok(products);
+
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex);
+            }
+
+
+
+
+        }
+
+
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Post(Product product)
+        {
+
+            try
+            {
+                WCObject wc = new WCObject(_restApi);
+
+                product.images.Add( new ProductImage() { });
+
+
+                //Get all products
+                var result = await wc.Product.Add(product);
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex);
+            }
+
+        }
+
+
+
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update(Product product)
+        {
+
+            try
+            {
+                WCObject wc = new WCObject(_restApi);
+
+                 
+
+                var id = Convert.ToInt32(product.id);
+
+
+                //Get all products
+                var result = await wc.Product.Update(id,product);
+
+                return Ok(result);
+
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, ex);
+            }
+
+        }
+
+
+
+
+
+
+
+
     }
 }

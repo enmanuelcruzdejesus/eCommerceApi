@@ -8,6 +8,9 @@ namespace WooCommerceNET.WooCommerce.Legacy
     public class WCObject
     {
         private RestAPI API;
+
+        public object Product { get; set; }
+
         public WCObject(RestAPI api)
         {
             if (!api.IsLegacy)
