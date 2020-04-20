@@ -8,4 +8,8 @@
     <Folder Include="WordPress\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="ServiceStack.OrmLite.SqlServer" Version="5.8.0" />
+  </ItemGroup>
+
 </Project>
