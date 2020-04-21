@@ -1,14 +1,17 @@
 ﻿using ServiceStack.DataAnnotations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
+    [Table("Customers")]
     public class Customer
     {
-       
+       [Key]
         public int id { get; set; }
         public string customerRef { get; set; }
         public string user_name { get; set; }
@@ -26,5 +29,7 @@ namespace eCommerceApi.Model
         public string avatar_url { get; set; }
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
+
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

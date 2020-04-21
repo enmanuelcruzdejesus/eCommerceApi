@@ -1,16 +1,20 @@
 ﻿using ServiceStack.DataAnnotations;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
+    [Table("Products")]
     public class Product
     {
        
+        [Key]
         public int id { get; set; }
-        public int sku { get; set; }
+        public int productRef { get; set; }
         public string description { get; set; }
         public string shortdescrip { get; set; }
         public int categoryId { get; set; }
@@ -42,5 +46,7 @@ namespace eCommerceApi.Model
         public string status { get; set; }
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
+
+        public virtual ICollection<OrderDetail> Orders { get; set; }
     }
 }

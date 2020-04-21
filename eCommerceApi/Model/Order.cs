@@ -1,14 +1,19 @@
-﻿using ServiceStack.DataAnnotations;
+﻿
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
+    [Table("Orders")]
     public class Order
     {
       
+        [Key]
         public int id { get; set; }
         public int orderRef { get; set; }
         public int parentId { get; set; }
@@ -47,5 +52,12 @@ namespace eCommerceApi.Model
         public string status { get; set; }
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
+
+        [DataMember]
+        public virtual ICollection<OrderDetail> Detail { get; set; }
+
+
+        [System.ComponentModel.DataAnnotations.Schema.ForeignKey("customerId")]
+        public virtual Customer Customer { get; set; }
     }
 }

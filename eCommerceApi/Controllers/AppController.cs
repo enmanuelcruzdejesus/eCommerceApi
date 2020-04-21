@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
+using eCommerceApi.Helpers.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
+
 
 namespace eCommerceApi.Controllers
 {
@@ -21,7 +23,7 @@ namespace eCommerceApi.Controllers
         public AppController() { _restApi = AppConfig.Instance().Service; }
 
 
-        [HttpPost("webhooks/order/create")]
+        [HttpPost("webhooks/order")]
         public async Task<IActionResult> Post()
         {
             try
@@ -40,9 +42,20 @@ namespace eCommerceApi.Controllers
                     jsonData = await reader.ReadToEndAsync();
                     if (!string.IsNullOrEmpty(jsonData))
                     {
-                        var order = JsonConvert.DeserializeObject<Order>(jsonData);
-                        Console.WriteLine("*******************WEB HOOKS*****************");
-                        Console.WriteLine("JSON DATA = {0} ", order);
+                        var eOrder = JsonConvert.DeserializeObject<Order>(jsonData);
+                        if (eOrder != null)
+                        {
+                            var order = DatabaseHelper.GetOrderFromEOrder(eOrder);
+
+                            var db = AppConfig.Instance().Db;
+                            var list = new List<eCommerceApi.Model.Order>();
+                            list.Add(order);
+                            db.Orders.BulkMerge(list);
+                            db.OrderDetails.BulkMerge(order.Detail);
+
+
+                        }
+
                     }
 
                   

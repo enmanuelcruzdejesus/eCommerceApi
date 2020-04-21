@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
+using eCommerceApi.DAL.Services;
 using Microsoft.Extensions.Configuration;
 using WooCommerceNET;
 
@@ -12,7 +13,7 @@ namespace ApiCore
         private static AppConfig _instance;
         private static string _connectionString;
         //private static IDbConnectionFactory _dbFactory;
-        //private Database _db = null;
+        private Database _db = null;
 
         private RestAPI _restApi = null;
 
@@ -79,16 +80,16 @@ namespace ApiCore
             }
         }
 
-        //public Database Db
-        //{
-        //    get
-        //    {
-        //        if (_db == null)
-        //            _db = new Database(ConnectionString);
+        public Database Db
+        {
+            get
+            {
+                if (_db == null)
+                    _db = new Database(ConnectionString);
 
-        //        return _db;
-        //    }
-        //}
+                return _db;
+            }
+        }
 
         public RestAPI Service
         {
