@@ -59,6 +59,7 @@ namespace eCommerceApi.Helpers.Database
 
                 obj.id = any.id;
                 obj.customerRef = any.customerRef;
+                obj.created = any.created;
                 obj.lastupdate = DateTime.Now;
               
             }
@@ -85,6 +86,7 @@ namespace eCommerceApi.Helpers.Database
             {
                 obj.id = any.id;
                 obj.categoryRef = any.categoryRef;
+                obj.created = any.created;
                 obj.lastupdate = DateTime.Now;
          
              
@@ -152,6 +154,7 @@ namespace eCommerceApi.Helpers.Database
             {
                 obj.id = any.id;
                 obj.productRef = any.productRef;
+                obj.created = any.created;
                 obj.lastupdate = DateTime.Now;
 
 
