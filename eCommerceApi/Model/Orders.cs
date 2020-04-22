@@ -10,12 +10,13 @@ using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
-    [Alias("Orders")]
+    
     public class Orders
     {
       
         [PrimaryKey]
         [AutoIncrement]
+        [DataMember]
         public int id { get; set; }
         public int orderRef { get; set; }
         public int parentId { get; set; }
@@ -25,8 +26,8 @@ namespace eCommerceApi.Model
         public string customer_notes { get; set; }
         public DateTime order_date { get; set; }
         public DateTime date_created_gmt { get; set; }
-        public DateTime date_paid { get; set; }
-        public DateTime date_completed { get; set; }
+        public DateTime? date_paid { get; set; }
+        public DateTime? date_completed { get; set; }
         public string currency { get; set; }
         public string payment_menthod { get; set; }
         public string payment_menthod_title { get; set; }
@@ -56,11 +57,11 @@ namespace eCommerceApi.Model
         public DateTime lastupdate { get; set; }
 
         [Reference]
-        public virtual ICollection<OrderDetails> Detail { get; set; }
+        public virtual List<OrderDetails> Detail { get; set; }
 
 
        
-        [Reference]
-        public virtual Customers Customer { get; set; }
+        //[Reference]
+        //public virtual Customers Customer { get; set; }
     }
 }

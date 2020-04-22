@@ -51,7 +51,13 @@ namespace eCommerceApi.Controllers
                             var list = new List<eCommerceApi.Model.Orders>();
                             list.Add(order);
                             db.Orders.BulkMerge(list);
-                            db.OrderDetails.BulkMerge(order.Detail);
+                            var idorder = DatabaseHelper.GetOrderByRef(order.orderRef).id;
+                            var detail = order.Detail;
+                            foreach (var item in detail)
+                            {
+                                item.orderId = idorder;
+                            }
+                            db.OrderDetails.BulkMerge(detail);
 
 
                         }

@@ -40,7 +40,7 @@ namespace eCommerceApi.DAL.Services
            
 
 
-            modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithMany(o => o.Detail);
+            //modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithMany(o => o.Detail);
 
 
 

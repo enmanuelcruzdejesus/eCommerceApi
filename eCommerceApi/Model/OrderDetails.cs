@@ -16,6 +16,9 @@ namespace eCommerceApi.Model
         [AutoIncrement]
         public int id { get; set; }
 
+        [Alias("orderId")]
+        public int OrdersId { get; set; }
+
         public int orderId { get; set; }
         public int productId { get; set; }
         public string descrip { get; set; }
@@ -26,13 +29,15 @@ namespace eCommerceApi.Model
         public decimal subtotal_tax { get; set; }
         public decimal total_tax { get; set; }
         public decimal total { get; set; }
-
-       
-        [Reference]
-        public virtual Orders Order { get; set; }
+        public DateTime created { get; set; }
+        public DateTime lastupdate { get; set; }
 
 
-        [Reference]
-        public virtual Products Item { get; set; }
+        //[Reference]
+        //public virtual Orders Order { get; set; }
+
+
+        //[Reference]
+        //public virtual Products Item { get; set; }
     }
 }

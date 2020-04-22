@@ -11,6 +11,13 @@ namespace eCommerceApi.Helpers.Database
 {
     public class DatabaseHelper
     {
+        public static Orders GetOrderByRef(int IdRef)
+        {
+            var query = AppConfig.Instance().Db.Orders.Get(o => o.orderRef == IdRef).FirstOrDefault();
+            return query;
+
+        }
+
         public static Products GetProductByRef(int IdRef)
         {
             var query = AppConfig.Instance().Db.Products.Get(p => p.productRef == IdRef).FirstOrDefault();
@@ -219,8 +226,19 @@ namespace eCommerceApi.Helpers.Database
             obj.customer_notes = order.customer_note;
             obj.order_date = Convert.ToDateTime(order.date_created);
             obj.date_created_gmt = Convert.ToDateTime(order.date_created_gmt);
-            obj.date_paid = Convert.ToDateTime(order.date_paid);
-            obj.date_completed = Convert.ToDateTime(order.date_completed);
+
+            if (obj.date_paid != null)
+                obj.date_paid = Convert.ToDateTime(order.date_paid);
+            else
+                obj.date_paid = null;
+
+            if (obj.date_completed != null)
+                obj.date_completed = Convert.ToDateTime(order.date_completed);
+            else
+                obj.date_completed = null;
+
+         
+         
             obj.currency = order.currency;
             obj.payment_menthod = order.payment_method;
             obj.payment_menthod_title = order.payment_method_title;
@@ -273,7 +291,7 @@ namespace eCommerceApi.Helpers.Database
                     OrderDetails i = new OrderDetails();
 
                     i.id = 0;
-                    var product = GetProductByRef(Convert.ToInt32(item.id));
+                    var product = GetProductByRef(Convert.ToInt32(item.product_id));
                     if (product != null)
                     {
                         i.productId = product.id;
@@ -288,10 +306,13 @@ namespace eCommerceApi.Helpers.Database
                     i.subtotal_tax = Convert.ToDecimal(item.subtotal_tax);
                     i.total_tax = Convert.ToDecimal(item.total_tax);
                     i.total = Convert.ToDecimal(item.total);
+                    i.created = DateTime.Now;
+                    i.lastupdate = DateTime.Now;
 
                     details.Add(i);
 
                 }
+               
                 obj.Detail = details;
 
             }
@@ -299,7 +320,8 @@ namespace eCommerceApi.Helpers.Database
 
 
 
-
+            obj.created = DateTime.Now;
+            obj.lastupdate = DateTime.Now;
 
             return obj;
 
