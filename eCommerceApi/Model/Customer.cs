@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
-    [Table("Customers")]
+    [Alias("Customers")]
     public class Customer
     {
-       [Key]
+        [PrimaryKey]
+        [AutoIncrement]
         public int id { get; set; }
         public string customerRef { get; set; }
         public string user_name { get; set; }

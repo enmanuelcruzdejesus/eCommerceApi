@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
-    [Table("Products")]
+    [Alias("Products")]
     public class Product
     {
-       
-        [Key]
+        [PrimaryKey]
+        [AutoIncrement]
         public int id { get; set; }
         public int productRef { get; set; }
         public string description { get; set; }
@@ -47,6 +47,7 @@ namespace eCommerceApi.Model
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
 
-        public virtual ICollection<OrderDetail> Orders { get; set; }
+        //[Reference]
+        //public virtual ICollection<OrderDetail> Orders { get; set; }
     }
 }

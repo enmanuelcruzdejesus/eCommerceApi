@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ServiceStack.DataAnnotations;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,10 +8,12 @@ using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
-    [Table("OrderDetails")]
+    [Alias("OrderDetails")]
     public class OrderDetail
     {
-        [Key]
+
+        [PrimaryKey]
+        [AutoIncrement]
         public int id { get; set; }
 
         public int orderId { get; set; }
@@ -24,11 +27,12 @@ namespace eCommerceApi.Model
         public decimal total_tax { get; set; }
         public decimal total { get; set; }
 
-        [ForeignKey("orderId")]
+       
+        [Reference]
         public virtual Order Order { get; set; }
 
 
-        [ForeignKey("productId")]
+        [Reference]
         public virtual Product Item { get; set; }
     }
 }

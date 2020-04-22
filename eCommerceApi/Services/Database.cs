@@ -1,29 +1,30 @@
-﻿using eCommerceApi.DAL.Services.Services;
+﻿using ApiCore.Services;
 using eCommerceApi.Model;
+using ServiceStack.Data;
+using ServiceStack.OrmLite;
 using System;
-using XamCore.Services;
 
 namespace eCommerceApi.DAL.Services
 {
     public class Database
     {
         private IRepository<Customer> _Customers = null;
-        private IRepository<ProductCategory> _ProductsCategories = null;
+        private IRepository<ProductCategories> _ProductsCategories = null;
         private IRepository<Product> _Products = null;
         private IRepository<Order> _salesOrders = null;
         private IRepository<OrderDetail> _salesOrderssDetails = null;
- 
 
         private string _connectionString;
-        private DatabaseContext _context;
+        private IDbConnectionFactory _dbFactory;
+
 
 
         public Database(string connectionString)
         {
 
+
             this._connectionString = connectionString;
-            this._context = new DatabaseContext(connectionString);
-            
+            _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
 
         }
 
@@ -32,19 +33,19 @@ namespace eCommerceApi.DAL.Services
             get
             {
                 if (_Customers == null)
-                    _Customers = new EntityFrameworkRepo<Customer>(_context);
+                    _Customers = new ServiceStackRepository<Customer>(_dbFactory);
 
                 return _Customers;
             }
 
         }
 
-        public IRepository<ProductCategory> ProductCategories
+        public IRepository<ProductCategories> ProductCategories
         {
             get
             {
                 if (_ProductsCategories == null)
-                    _ProductsCategories = new EntityFrameworkRepo<ProductCategory>(_context);
+                    _ProductsCategories = new ServiceStackRepository<ProductCategories>(_dbFactory);
 
                 return _ProductsCategories;
             }
@@ -56,7 +57,7 @@ namespace eCommerceApi.DAL.Services
             get
             {
                 if (_Products == null)
-                    _Products = new EntityFrameworkRepo<Product>(_context);
+                    _Products = new ServiceStackRepository<Product>(_dbFactory);
 
                 return _Products;
             }
@@ -68,7 +69,7 @@ namespace eCommerceApi.DAL.Services
             get
             {
                 if (_salesOrders == null)
-                    _salesOrders = new EntityFrameworkRepo<Order>(_context);
+                    _salesOrders = new ServiceStackRepository<Order>(_dbFactory);
 
                 return _salesOrders;
             }
@@ -80,7 +81,7 @@ namespace eCommerceApi.DAL.Services
             get
             {
                 if (_salesOrderssDetails == null)
-                    _salesOrderssDetails = new EntityFrameworkRepo<OrderDetail>(_context);
+                    _salesOrderssDetails = new ServiceStackRepository<OrderDetail>(_dbFactory);
 
                 return _salesOrderssDetails;
             }

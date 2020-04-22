@@ -1,4 +1,5 @@
 ﻿
+using ServiceStack.DataAnnotations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -9,11 +10,12 @@ using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
-    [Table("Orders")]
+    [Alias("Orders")]
     public class Order
     {
       
-        [Key]
+        [PrimaryKey]
+        [AutoIncrement]
         public int id { get; set; }
         public int orderRef { get; set; }
         public int parentId { get; set; }
@@ -53,11 +55,12 @@ namespace eCommerceApi.Model
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
 
-        [DataMember]
+        [Reference]
         public virtual ICollection<OrderDetail> Detail { get; set; }
 
 
-        [System.ComponentModel.DataAnnotations.Schema.ForeignKey("customerId")]
+       
+        [Reference]
         public virtual Customer Customer { get; set; }
     }
 }

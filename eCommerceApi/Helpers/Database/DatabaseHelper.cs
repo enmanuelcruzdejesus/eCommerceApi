@@ -18,7 +18,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static ProductCategory GetCategoryByRef(int IdRef)
+        public static ProductCategories GetCategoryByRef(int IdRef)
         {
             var query = AppConfig.Instance().Db.ProductCategories.Get(c => c.categoryRef == IdRef).FirstOrDefault();
             return query;
@@ -35,152 +35,199 @@ namespace eCommerceApi.Helpers.Database
 
         public static eCommerceApi.Model.Customer GetCustomerFromECustomer(WooCommerceNET.WooCommerce.v3.Customer customer)
         {
-            var result = new Customer();
-            result.customerRef = customer.id.ToString();
-            result.user_name = customer.username;
-            result.customer_name = customer.first_name + " " + customer.last_name;
+            var obj = new Customer();
+            obj.customer_name = customer.first_name + " " + customer.last_name;
             if (customer.billing != null)
             {
-                result.country = customer.billing.country;
-                result.city = customer.billing.city;
-                result.state = customer.billing.state;
-                result.postcode = customer.billing.postcode;
-                result.phone = customer.billing.phone;
-                
+                obj.country = customer.billing.country;
+                obj.city = customer.billing.city;
+                obj.state = customer.billing.state;
+                obj.postcode = customer.billing.postcode;
+                obj.phone = customer.billing.phone;
+
+
             }
 
-            result.role = customer.role;
-            result.email = customer.email;
-            result.avatar_url = customer.avatar_url;
-            result.created = DateTime.Now;
-            result.lastupdate = DateTime.Now;
+            obj.role = customer.role;
+            obj.email = customer.email;
+            obj.avatar_url = customer.avatar_url;
 
-            
 
-            return result;
+            var any = GetCustomerByRef(Convert.ToInt32(customer.id));
+            if ( any != null)
+            {
+
+                obj.id = any.id;
+                obj.customerRef = any.customerRef;
+                obj.lastupdate = DateTime.Now;
+              
+            }
+            else
+            {
+                obj.customerRef = customer.id.ToString();
+                obj.created = DateTime.Now;
+                obj.lastupdate = DateTime.Now;
+            }
+
+            return obj;
+  
         }
 
-        public static eCommerceApi.Model.ProductCategory GetCategoryFromEProductCategory(WooCommerceNET.WooCommerce.v3.ProductCategory category)
+        public static eCommerceApi.Model.ProductCategories GetCategoryFromEProductCategory(WooCommerceNET.WooCommerce.v3.ProductCategory category)
         {
-            var result = new ProductCategory();
-            result.categoryRef = Convert.ToInt32(category.id);
-            result.descrip = category.description;
-            result.slug = category.slug;
-            return result;
+            var obj = new ProductCategories();
+            obj.descrip = category.description;
+            obj.slug = category.slug;
+
+
+            var any = GetCategoryByRef(Convert.ToInt32(category.id));
+            if (any != null)
+            {
+                obj.id = any.id;
+                obj.categoryRef = any.categoryRef;
+                obj.lastupdate = DateTime.Now;
+         
+             
+            }
+            else
+            {
+                obj.categoryRef = Convert.ToInt32(category.id);
+                obj.created = DateTime.Now;
+                obj.lastupdate = DateTime.Now;
+            }
+
+
+
+            return obj;
 
         }
-        
+
         public static eCommerceApi.Model.Product GetProductFromEProduct(WooCommerceNET.WooCommerce.v3.Product product)
         {
-            eCommerceApi.Model.Product result = new Product();
-            result.productRef = Convert.ToInt32(product.id);
-            result.description = product.description;
-            result.shortdescrip = product.short_description;
-            
-            if(product.categories.Count > 0)
+            var obj = new Product();
+            obj.description = product.description;
+            obj.shortdescrip = product.short_description;
+
+            if (product.categories.Count > 0)
             {
                 var category = GetCategoryByRef(Convert.ToInt32(product.categories[0].id));
-                result.categoryId = category.id;
-          
+                obj.categoryId = category.id;
+
             }
-            result.price = Convert.ToDecimal(product.price);
-            result.regular_price = Convert.ToDecimal(product.regular_price);
-            result.sale_price = Convert.ToDecimal(product.sale_price);
-            result.price_html = product.price_html;
-            result.on_sale = Convert.ToBoolean(product.on_sale);
-            result.purchasable = Convert.ToBoolean(product.purchasable);
-            result.total_sales = Convert.ToDecimal(product.total_sales);
-            result.taxt_status = product.tax_status;
-            result.manage_stock = Convert.ToBoolean(product.manage_stock);
-            result.stock_quantity = Convert.ToInt32(product.stock_quantity);
-            result.stock_status = product.stock_status;
-            result.backorders_allowed = Convert.ToBoolean(product.backorders_allowed);
-            result.weight = Convert.ToDecimal(product.weight);
-            if(product.dimensions!= null)
+            obj.price = Convert.ToDecimal(product.price);
+            obj.regular_price = Convert.ToDecimal(product.regular_price);
+            obj.sale_price = Convert.ToDecimal(product.sale_price);
+            obj.price_html = product.price_html;
+            obj.on_sale = Convert.ToBoolean(product.on_sale);
+            obj.purchasable = Convert.ToBoolean(product.purchasable);
+            obj.total_sales = Convert.ToDecimal(product.total_sales);
+            obj.taxt_status = product.tax_status;
+            obj.manage_stock = Convert.ToBoolean(product.manage_stock);
+            obj.stock_quantity = Convert.ToInt32(product.stock_quantity);
+            obj.stock_status = product.stock_status;
+            obj.backorders_allowed = Convert.ToBoolean(product.backorders_allowed);
+            obj.weight = Convert.ToDecimal(product.weight);
+            if (product.dimensions != null)
             {
-                result.width = Convert.ToDecimal(product.dimensions.width);
-                result.length = Convert.ToDecimal(product.dimensions.length);
-                result.height = Convert.ToDecimal(product.dimensions.height);
+                obj.width = Convert.ToDecimal(product.dimensions.width);
+                obj.length = Convert.ToDecimal(product.dimensions.length);
+                obj.height = Convert.ToDecimal(product.dimensions.height);
             }
-            if(product.attributes != null)
+            if (product.attributes != null)
             {
-                result.position = Convert.ToInt32(product.attributes[0].position);
-                result.visible = Convert.ToBoolean(product.attributes[0].visible);
+                obj.position = Convert.ToInt32(product.attributes[0].position);
+                obj.visible = Convert.ToBoolean(product.attributes[0].visible);
             }
 
-            result.shipping_required = Convert.ToBoolean(product.shipping_required);
-            result.shipping_taxable = Convert.ToBoolean(product.shipping_taxable);
-            result.shipping_class_id = Convert.ToInt32(product.shipping_class_id);
-            result.average_rating = product.average_rating;
-            result.rating_count = Convert.ToInt32(product.rating_count);
-            result.menu_order = Convert.ToInt32(product.menu_order);
-            result.status = product.status;
-            result.created = DateTime.Now;
-            result.lastupdate = DateTime.Now;
+            obj.shipping_required = Convert.ToBoolean(product.shipping_required);
+            obj.shipping_taxable = Convert.ToBoolean(product.shipping_taxable);
+            obj.shipping_class_id = Convert.ToInt32(product.shipping_class_id);
+            obj.average_rating = product.average_rating;
+            obj.rating_count = Convert.ToInt32(product.rating_count);
+            obj.menu_order = Convert.ToInt32(product.menu_order);
+            obj.status = product.status;
 
-            return result;
+            var any = GetProductByRef(Convert.ToInt32(product.id));
+            if (any != null)
+            {
+                obj.id = any.id;
+                obj.productRef = any.productRef;
+                obj.lastupdate = DateTime.Now;
+
+
+            }
+            else
+            {
+                obj.productRef = Convert.ToInt32(product.id);
+                obj.created = DateTime.Now;
+                obj.lastupdate = DateTime.Now;
+            }
+
+            return obj;
+
         }
 
         public static eCommerceApi.Model.Order GetOrderFromEOrder(WooCommerceNET.WooCommerce.v3.Order order)
         {
-            eCommerceApi.Model.Order result = new Model.Order();
-            result.orderRef = Convert.ToInt32(order.id);
-            result.parentId = Convert.ToInt32(order.parent_id);
-            result.order_key = order.order_key;
-            result.order_number = order.number;
-            result.customerId = Convert.ToInt32(order.customer_id);
-            result.customer_notes = order.customer_note;
-            result.order_date = Convert.ToDateTime(order.date_created);
-            result.date_created_gmt = Convert.ToDateTime(order.date_created_gmt);
-            result.date_paid = Convert.ToDateTime(order.date_paid);
-            result.date_completed = Convert.ToDateTime(order.date_completed);
-            result.currency = order.currency;
-            result.payment_menthod = order.payment_method;
-            result.payment_menthod_title = order.payment_method_title;
-            result.discount_total = Convert.ToDecimal(order.discount_total);
-            result.discount_tax = Convert.ToDecimal(order.discount_tax);
-            result.shipping_total = Convert.ToDecimal(order.shipping_total);
-            result.prices_include_tax = Convert.ToBoolean(order.prices_include_tax);
+
+            var obj = new Order();
+
+            obj.orderRef = Convert.ToInt32(order.id);
+            obj.parentId = Convert.ToInt32(order.parent_id);
+            obj.order_key = order.order_key;
+            obj.order_number = order.number;
+            obj.customerId = Convert.ToInt32(order.customer_id);
+            obj.customer_notes = order.customer_note;
+            obj.order_date = Convert.ToDateTime(order.date_created);
+            obj.date_created_gmt = Convert.ToDateTime(order.date_created_gmt);
+            obj.date_paid = Convert.ToDateTime(order.date_paid);
+            obj.date_completed = Convert.ToDateTime(order.date_completed);
+            obj.currency = order.currency;
+            obj.payment_menthod = order.payment_method;
+            obj.payment_menthod_title = order.payment_method_title;
+            obj.discount_total = Convert.ToDecimal(order.discount_total);
+            obj.discount_tax = Convert.ToDecimal(order.discount_tax);
+            obj.shipping_total = Convert.ToDecimal(order.shipping_total);
+            obj.prices_include_tax = Convert.ToBoolean(order.prices_include_tax);
             if (order.tax_lines != null)
             {
-                result.rateId = Convert.ToInt32(order.tax_lines[0].rate_id);
-                result.rate_code = order.tax_lines[0].rate_code;
-                result.tax_rate_label = order.tax_lines[0].label;
+                obj.rateId = Convert.ToInt32(order.tax_lines[0].rate_id);
+                obj.rate_code = order.tax_lines[0].rate_code;
+                obj.tax_rate_label = order.tax_lines[0].label;
 
             }
 
-            result.shipping_tax = Convert.ToDecimal(order.shipping_tax);
-            result.total_tax = Convert.ToDecimal(order.total_tax);
-            result.discount_tax = Convert.ToDecimal(order.discount_tax);
-            result.total = Convert.ToDecimal(order.total);
-            result.total_tax = Convert.ToDecimal(order.total_tax);
-            
-            if(order.billing != null)
+            obj.shipping_tax = Convert.ToDecimal(order.shipping_tax);
+            obj.total_tax = Convert.ToDecimal(order.total_tax);
+            obj.discount_tax = Convert.ToDecimal(order.discount_tax);
+            obj.total = Convert.ToDecimal(order.total);
+            obj.total_tax = Convert.ToDecimal(order.total_tax);
+
+            if (order.billing != null)
             {
-                result.first_name = order.billing.first_name;
-                result.last_name = order.billing.last_name;
-                result.company = order.billing.company;
-                result.address1 = order.billing.address_1;
-                result.address2 = order.billing.address_2;
-                result.country = order.billing.country;
-                result.city = order.billing.city;
-                result.state = order.billing.state;
-                result.postcode = order.billing.postcode;
-                result.email = order.billing.email;
-                result.phone = order.billing.phone;
-                
+                obj.first_name = order.billing.first_name;
+                obj.last_name = order.billing.last_name;
+                obj.company = order.billing.company;
+                obj.address1 = order.billing.address_1;
+                obj.address2 = order.billing.address_2;
+                obj.country = order.billing.country;
+                obj.city = order.billing.city;
+                obj.state = order.billing.state;
+                obj.postcode = order.billing.postcode;
+                obj.email = order.billing.email;
+                obj.phone = order.billing.phone;
+
             }
-            result.status = order.status;
-            result.created = DateTime.Now;
-            result.lastupdate = DateTime.Now;
+            obj.status = order.status;
 
 
-            if(order.line_items!= null)
+            if (order.line_items != null)
             {
                 List<OrderDetail> details = new List<OrderDetail>();
                 foreach (var item in order.line_items)
                 {
                     OrderDetail i = new OrderDetail();
+
                     i.id = 0;
                     var product = GetProductByRef(Convert.ToInt32(item.id));
                     if (product != null)
@@ -201,15 +248,16 @@ namespace eCommerceApi.Helpers.Database
                     details.Add(i);
 
                 }
-                result.Detail = details;
+                obj.Detail = details;
 
             }
 
 
 
 
-          
-            return result;
+
+
+            return obj;
 
 
 

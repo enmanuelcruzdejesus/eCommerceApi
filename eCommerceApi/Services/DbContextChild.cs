@@ -14,7 +14,7 @@ namespace eCommerceApi.Services
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer($"Filename={AppConfig.Instance().ConnectionString}");
+            optionsBuilder.UseSqlServer(AppConfig.Instance().ConnectionString);
             base.OnConfiguring(optionsBuilder);
         }
     }

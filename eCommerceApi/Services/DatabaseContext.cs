@@ -21,6 +21,10 @@ namespace eCommerceApi.DAL.Services
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
+            modelBuilder.Entity<ProductCategories>()
+          .HasKey(c => c.id);
+
             modelBuilder.Entity<Customer>()
            .HasKey(c => c.id);
 
@@ -46,7 +50,7 @@ namespace eCommerceApi.DAL.Services
 
 
 
-            modelBuilder.Entity<OrderDetail>().HasOne(i => i.Item).WithMany(p => p.Orders);
+            //modelBuilder.Entity<OrderDetail>().HasOne(i => i.Item).WithMany(p => p.Orders);
 
 
 
@@ -54,7 +58,7 @@ namespace eCommerceApi.DAL.Services
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer($"Filename={_dbPath}");
+            optionsBuilder.UseSqlServer(_dbPath);
             base.OnConfiguring(optionsBuilder);
         }
     }

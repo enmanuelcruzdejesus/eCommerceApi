@@ -3,6 +3,8 @@ using System.Configuration;
 using System.IO;
 using eCommerceApi.DAL.Services;
 using Microsoft.Extensions.Configuration;
+using ServiceStack.Data;
+using ServiceStack.OrmLite;
 using WooCommerceNET;
 
 namespace ApiCore
@@ -12,7 +14,7 @@ namespace ApiCore
         #region FIELDS
         private static AppConfig _instance;
         private static string _connectionString;
-        //private static IDbConnectionFactory _dbFactory;
+        private static IDbConnectionFactory _dbFactory;
         private Database _db = null;
 
         private RestAPI _restApi = null;
@@ -47,9 +49,10 @@ namespace ApiCore
             var builder = new ConfigurationBuilder()
            .SetBasePath(Directory.GetCurrentDirectory())
            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+          
 
             var conf = builder.Build();
-           // _connectionString = conf.GetConnectionString("DefaultConnection");
+            _connectionString = conf.GetConnectionString("DefaultConnection");
             clientid = conf.GetSection("WooCommerceSettings").GetValue(typeof(string), "clientid").ToString();
             clientsecret = conf.GetSection("WooCommerceSettings").GetValue(typeof(string), "clientsecret").ToString();          
             baseUrl = conf.GetSection("WooCommerceSettings").GetValue(typeof(string), "baseUrl").ToString();
@@ -58,7 +61,7 @@ namespace ApiCore
 
 
             _instance = null;
-            //_dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+            _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
         }
         #endregion
 
@@ -108,7 +111,7 @@ namespace ApiCore
 
 
 
-        //public IDbConnectionFactory DbFactory { get { return _dbFactory; } }
+        public IDbConnectionFactory DbFactory { get { return _dbFactory; } }
 
 
 

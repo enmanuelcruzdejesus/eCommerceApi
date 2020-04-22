@@ -1,25 +1,28 @@
+
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XamCore.Services
+namespace ApiCore.Services
 {
-    public interface IRepository<TEntity> where TEntity : class
+    public interface IRepository<TEntity> where TEntity : new()
     {
         IEnumerable<TEntity> GetAll();
 
         IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>> predicate);
 
-        IEnumerable<TEntity> GetLoadRerefence(string propertyName = null);
+        IEnumerable<TEntity> GetLoadRerefence();
 
 
-        IEnumerable<TEntity> GetLoadRerefence(Expression<Func<TEntity, bool>> predicate, string propertyName1 =null);
+        IEnumerable<TEntity> GetLoadRerefence(Expression<Func<TEntity, bool>> predicate);
 
 
 
         TEntity GetById(object id);
+
+        IEnumerable<TEntity> GetByIds(int[] ids);
 
 
         int Update(TEntity entity);
@@ -32,6 +35,9 @@ namespace XamCore.Services
 
 
         int Delete(TEntity entity);
+
+        int DeleteAll();
+
 
 
 
