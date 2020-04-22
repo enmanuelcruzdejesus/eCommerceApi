@@ -48,7 +48,7 @@ namespace eCommerceApi.Controllers
                             var order = DatabaseHelper.GetOrderFromEOrder(eOrder);
 
                             var db = AppConfig.Instance().Db;
-                            var list = new List<eCommerceApi.Model.Order>();
+                            var list = new List<eCommerceApi.Model.Orders>();
                             list.Add(order);
                             db.Orders.BulkMerge(list);
                             db.OrderDetails.BulkMerge(order.Detail);

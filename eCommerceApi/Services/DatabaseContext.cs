@@ -9,7 +9,7 @@ namespace eCommerceApi.DAL.Services
     {
 
         private string _dbPath;
-        public DbSet<Customer> Customers { get; set; }
+        public DbSet<Customers> Customers { get; set; }
 
         public DatabaseContext() { }
 
@@ -25,27 +25,27 @@ namespace eCommerceApi.DAL.Services
             modelBuilder.Entity<ProductCategories>()
           .HasKey(c => c.id);
 
-            modelBuilder.Entity<Customer>()
+            modelBuilder.Entity<Customers>()
            .HasKey(c => c.id);
 
-            modelBuilder.Entity<Product>()
+            modelBuilder.Entity<Products>()
            .HasKey(p => p.id);
 
-            modelBuilder.Entity<Order>()
+            modelBuilder.Entity<Orders>()
             .HasKey(o => o.id);
 
-            modelBuilder.Entity<OrderDetail>()
+            modelBuilder.Entity<OrderDetails>()
             .HasKey(d => d.id);
 
            
 
 
-            modelBuilder.Entity<OrderDetail>().HasOne(d => d.Order).WithMany(o => o.Detail);
+            modelBuilder.Entity<OrderDetails>().HasOne(d => d.Order).WithMany(o => o.Detail);
 
 
 
 
-            modelBuilder.Entity<Order>().HasOne(o => o.Customer).WithMany(c => c.Orders);
+            //modelBuilder.Entity<Orders>().HasOne(o => o.Customer).WithMany(c => c.Orders);
 
 
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace eCommerceApi.Model
 {
     [Alias("Customers")]
-    public class Customer
+    public class Customers
     {
         [PrimaryKey]
         [AutoIncrement]
@@ -31,6 +31,6 @@ namespace eCommerceApi.Model
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
 
-        public virtual ICollection<Order> Orders { get; set; }
+        //public virtual ICollection<Orders> Orders { get; set; }
     }
 }

@@ -13,11 +13,11 @@ namespace eCommerceApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class CustomerController : ControllerBase
     {
         RestAPI _restApi;
+        public CustomerController() { _restApi = AppConfig.Instance().Service;  }
 
-        public ProductController() { _restApi = AppConfig.Instance().Service; }
 
 
         [HttpPost("download")]
@@ -28,25 +28,24 @@ namespace eCommerceApi.Controllers
 
                 WCObject wc = new WCObject(_restApi);
 
-                //Get all products
-                var eproducts = await wc.Product.GetAll();
+                var ecustomers = await wc.Customer.GetAll();
 
                 var db = AppConfig.Instance().Db;
 
 
 
                 //adapting data
-                List<eCommerceApi.Model.Products> products = new List<Model.Products>();
-                foreach (var item in eproducts)
+                List<eCommerceApi.Model.Customers> customers = new List<Model.Customers>();
+                foreach (var item in ecustomers)
                 {
-                    var p = DatabaseHelper.GetProductFromEProduct(item);
-                    products.Add(p);
+                    var c = DatabaseHelper.GetCustomerFromECustomer(item);
+                    customers.Add(c);
                 }
 
 
-                db.Products.BulkMerge(products);
+                db.Customers.BulkMerge(customers);
 
-                return Ok(products);
+                return Ok(customers);
 
 
             }

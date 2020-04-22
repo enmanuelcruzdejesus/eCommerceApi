@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace eCommerceApi.Model
 {
     [Alias("OrderDetails")]
-    public class OrderDetail
+    public class OrderDetails
     {
 
         [PrimaryKey]
@@ -29,10 +29,10 @@ namespace eCommerceApi.Model
 
        
         [Reference]
-        public virtual Order Order { get; set; }
+        public virtual Orders Order { get; set; }
 
 
         [Reference]
-        public virtual Product Item { get; set; }
+        public virtual Products Item { get; set; }
     }
 }

@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace eCommerceApi.Model
 {
-    [Alias("Products")]
-    public class Product
+  
+    public class Products
     {
         [PrimaryKey]
         [AutoIncrement]

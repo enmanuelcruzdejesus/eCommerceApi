@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace eCommerceApi.Model
 {
     [Alias("Orders")]
-    public class Order
+    public class Orders
     {
       
         [PrimaryKey]
@@ -56,11 +56,11 @@ namespace eCommerceApi.Model
         public DateTime lastupdate { get; set; }
 
         [Reference]
-        public virtual ICollection<OrderDetail> Detail { get; set; }
+        public virtual ICollection<OrderDetails> Detail { get; set; }
 
 
        
         [Reference]
-        public virtual Customer Customer { get; set; }
+        public virtual Customers Customer { get; set; }
     }
 }

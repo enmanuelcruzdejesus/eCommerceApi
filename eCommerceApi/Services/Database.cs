@@ -8,11 +8,11 @@ namespace eCommerceApi.DAL.Services
 {
     public class Database
     {
-        private IRepository<Customer> _Customers = null;
+        private IRepository<Customers> _Customers = null;
         private IRepository<ProductCategories> _ProductsCategories = null;
-        private IRepository<Product> _Products = null;
-        private IRepository<Order> _salesOrders = null;
-        private IRepository<OrderDetail> _salesOrderssDetails = null;
+        private IRepository<Products> _Products = null;
+        private IRepository<Orders> _salesOrders = null;
+        private IRepository<OrderDetails> _salesOrderssDetails = null;
 
         private string _connectionString;
         private IDbConnectionFactory _dbFactory;
@@ -28,12 +28,12 @@ namespace eCommerceApi.DAL.Services
 
         }
 
-        public IRepository<Customer> Customers
+        public IRepository<Customers> Customers
         {
             get
             {
                 if (_Customers == null)
-                    _Customers = new ServiceStackRepository<Customer>(_dbFactory);
+                    _Customers = new ServiceStackRepository<Customers>(_dbFactory);
 
                 return _Customers;
             }
@@ -52,36 +52,36 @@ namespace eCommerceApi.DAL.Services
 
         }
 
-        public IRepository<Product> Products
+        public IRepository<Products> Products
         {
             get
             {
                 if (_Products == null)
-                    _Products = new ServiceStackRepository<Product>(_dbFactory);
+                    _Products = new ServiceStackRepository<Products>(_dbFactory);
 
                 return _Products;
             }
 
         }
       
-        public IRepository<Order> Orders
+        public IRepository<Orders> Orders
         {
             get
             {
                 if (_salesOrders == null)
-                    _salesOrders = new ServiceStackRepository<Order>(_dbFactory);
+                    _salesOrders = new ServiceStackRepository<Orders>(_dbFactory);
 
                 return _salesOrders;
             }
         }
 
 
-        public IRepository<OrderDetail> OrderDetails
+        public IRepository<OrderDetails> OrderDetails
         {
             get
             {
                 if (_salesOrderssDetails == null)
-                    _salesOrderssDetails = new ServiceStackRepository<OrderDetail>(_dbFactory);
+                    _salesOrderssDetails = new ServiceStackRepository<OrderDetails>(_dbFactory);
 
                 return _salesOrderssDetails;
             }

@@ -11,7 +11,7 @@ namespace eCommerceApi.Helpers.Database
 {
     public class DatabaseHelper
     {
-        public static Product GetProductByRef(int IdRef)
+        public static Products GetProductByRef(int IdRef)
         {
             var query = AppConfig.Instance().Db.Products.Get(p => p.productRef == IdRef).FirstOrDefault();
             return query;
@@ -25,7 +25,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static Customer GetCustomerByRef(int IdRef)
+        public static Customers GetCustomerByRef(int IdRef)
         {
             var query = AppConfig.Instance().Db.Customers.Get(c => c.customerRef == IdRef.ToString()).FirstOrDefault();
             return query;
@@ -33,12 +33,15 @@ namespace eCommerceApi.Helpers.Database
         }
 
 
-        public static eCommerceApi.Model.Customer GetCustomerFromECustomer(WooCommerceNET.WooCommerce.v3.Customer customer)
+        public static eCommerceApi.Model.Customers GetCustomerFromECustomer(WooCommerceNET.WooCommerce.v3.Customer customer)
         {
-            var obj = new Customer();
+            var obj = new Customers();
             obj.customer_name = customer.first_name + " " + customer.last_name;
             if (customer.billing != null)
             {
+                obj.company = customer.billing.company;
+                obj.address1 = customer.billing.address_1;
+                obj.address2 = customer.billing.address_2;
                 obj.country = customer.billing.country;
                 obj.city = customer.billing.city;
                 obj.state = customer.billing.state;
@@ -65,6 +68,7 @@ namespace eCommerceApi.Helpers.Database
             }
             else
             {
+                obj.user_name = customer.username;
                 obj.customerRef = customer.id.ToString();
                 obj.created = DateTime.Now;
                 obj.lastupdate = DateTime.Now;
@@ -104,10 +108,10 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static eCommerceApi.Model.Product GetProductFromEProduct(WooCommerceNET.WooCommerce.v3.Product product)
+        public static eCommerceApi.Model.Products GetProductFromEProduct(WooCommerceNET.WooCommerce.v3.Product product)
         {
-            var obj = new Product();
-            obj.description = product.description;
+            var obj = new Products();
+            obj.description = product.name;
             obj.shortdescrip = product.short_description;
 
             if (product.categories.Count > 0)
@@ -131,14 +135,46 @@ namespace eCommerceApi.Helpers.Database
             obj.weight = Convert.ToDecimal(product.weight);
             if (product.dimensions != null)
             {
-                obj.width = Convert.ToDecimal(product.dimensions.width);
-                obj.length = Convert.ToDecimal(product.dimensions.length);
-                obj.height = Convert.ToDecimal(product.dimensions.height);
+                if(string.IsNullOrEmpty(product.dimensions.width) || string.IsNullOrWhiteSpace(product.dimensions.width))
+                {
+                    obj.width = 0;
+                }
+                else
+                {
+                    obj.width = Convert.ToDecimal(product.dimensions.width);
+                }
+
+                if (string.IsNullOrEmpty(product.dimensions.length) || string.IsNullOrWhiteSpace(product.dimensions.length))
+                {
+                    obj.width = 0;
+                }
+                else
+                {
+                    obj.length = Convert.ToDecimal(product.dimensions.length);
+                }
+
+
+                if (string.IsNullOrEmpty(product.dimensions.height) || string.IsNullOrWhiteSpace(product.dimensions.height))
+                {
+                    obj.height = 0;
+                }
+                else
+                {
+                    obj.height = Convert.ToDecimal(product.dimensions.height);
+                }
+
+             
+              
+               
             }
-            if (product.attributes != null)
+            if (product.attributes!= null)
             {
-                obj.position = Convert.ToInt32(product.attributes[0].position);
-                obj.visible = Convert.ToBoolean(product.attributes[0].visible);
+                if(product.attributes.Count > 0)
+                {
+                    obj.position = Convert.ToInt32(product.attributes[0].position);
+                    obj.visible = Convert.ToBoolean(product.attributes[0].visible);
+                }
+              
             }
 
             obj.shipping_required = Convert.ToBoolean(product.shipping_required);
@@ -170,10 +206,10 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static eCommerceApi.Model.Order GetOrderFromEOrder(WooCommerceNET.WooCommerce.v3.Order order)
+        public static eCommerceApi.Model.Orders GetOrderFromEOrder(WooCommerceNET.WooCommerce.v3.Order order)
         {
 
-            var obj = new Order();
+            var obj = new Orders();
 
             obj.orderRef = Convert.ToInt32(order.id);
             obj.parentId = Convert.ToInt32(order.parent_id);
@@ -194,9 +230,13 @@ namespace eCommerceApi.Helpers.Database
             obj.prices_include_tax = Convert.ToBoolean(order.prices_include_tax);
             if (order.tax_lines != null)
             {
-                obj.rateId = Convert.ToInt32(order.tax_lines[0].rate_id);
-                obj.rate_code = order.tax_lines[0].rate_code;
-                obj.tax_rate_label = order.tax_lines[0].label;
+                if(order.tax_lines.Count > 0)
+                {
+                    obj.rateId = Convert.ToInt32(order.tax_lines[0].rate_id);
+                    obj.rate_code = order.tax_lines[0].rate_code;
+                    obj.tax_rate_label = order.tax_lines[0].label;
+                }
+              
 
             }
 
@@ -208,6 +248,7 @@ namespace eCommerceApi.Helpers.Database
 
             if (order.billing != null)
             {
+                
                 obj.first_name = order.billing.first_name;
                 obj.last_name = order.billing.last_name;
                 obj.company = order.billing.company;
@@ -224,12 +265,12 @@ namespace eCommerceApi.Helpers.Database
             obj.status = order.status;
 
 
-            if (order.line_items != null)
+            if (order.line_items != null && order.line_items.Count > 0)
             {
-                List<OrderDetail> details = new List<OrderDetail>();
+                List<OrderDetails> details = new List<OrderDetails>();
                 foreach (var item in order.line_items)
                 {
-                    OrderDetail i = new OrderDetail();
+                    OrderDetails i = new OrderDetails();
 
                     i.id = 0;
                     var product = GetProductByRef(Convert.ToInt32(item.id));
