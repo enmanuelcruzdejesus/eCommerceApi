@@ -16,6 +16,9 @@ namespace eCommerceApi.Model
         public int id { get; set; }
         public string customerRef { get; set; }
         public string user_name { get; set; }
+
+        public string password { get; set; }
+
         public string customer_name { get; set; }
         public string company { get; set; }
         public string address1 { get; set; }

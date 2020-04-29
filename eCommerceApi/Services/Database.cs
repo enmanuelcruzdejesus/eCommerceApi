@@ -13,6 +13,8 @@ namespace eCommerceApi.DAL.Services
         private IRepository<Products> _Products = null;
         private IRepository<Orders> _salesOrders = null;
         private IRepository<OrderDetails> _salesOrderssDetails = null;
+        private IRepository<SyncTables> _syncTables = null;
+        private IRepository<TransactionSyncLog> _transSyncLog = null;
 
         private string _connectionString;
         private IDbConnectionFactory _dbFactory;
@@ -87,11 +89,56 @@ namespace eCommerceApi.DAL.Services
             }
         }
 
+        public IRepository<SyncTables> SyncTables
+        {
+            get
+            {
+                if (_syncTables == null)
+                    _syncTables = new ServiceStackRepository<SyncTables>(_dbFactory);
 
-   
+                return _syncTables;
+            }
+        }
+
+        public IRepository<TransactionSyncLog> TransSyncLog
+        {
+            get
+            {
+                if (_transSyncLog == null)
+                    _transSyncLog = new ServiceStackRepository<TransactionSyncLog>(_dbFactory);
+
+                return _transSyncLog;
+            }
+        }
+
+
+        public DateTime GetLastUpdateDate(int userId, string tableName)
+        {
+            using (var dbCmd = _dbFactory.Open().CreateCommand())
+            {
+                dbCmd.CommandText = String.Format("SELECT LastUpdateSync FROM synctables WHERE UserId = {0} AND TableName = '{1}'", userId, tableName);
+                var result = dbCmd.ExecuteScalar();
+                if (result == DBNull.Value) return DateTime.MinValue;
+                return (DateTime)result;
+            }
+        }
 
 
 
-      
+        private static object GetDataValue(object value)
+        {
+            if (value == null)
+            {
+                return DBNull.Value;
+            }
+
+            return value;
+        }
+
+
+
+
+
+
     }
 }

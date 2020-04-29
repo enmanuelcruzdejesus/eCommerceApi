@@ -20,6 +20,7 @@ namespace eCommerceApi.Controllers
         public CategoryController() { _restApi = AppConfig.Instance().Service; }
 
 
+
         [HttpPost("download")]
         public async Task<IActionResult> Post()
         {

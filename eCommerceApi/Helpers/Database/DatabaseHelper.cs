@@ -44,6 +44,7 @@ namespace eCommerceApi.Helpers.Database
         {
             var obj = new Customers();
             obj.customer_name = customer.first_name + " " + customer.last_name;
+            obj.password = customer.password;
             if (customer.billing != null)
             {
                 obj.company = customer.billing.company;
@@ -76,6 +77,7 @@ namespace eCommerceApi.Helpers.Database
             else
             {
                 obj.user_name = customer.username;
+                obj.password = customer.password;
                 obj.customerRef = customer.id.ToString();
                 obj.created = DateTime.Now;
                 obj.lastupdate = DateTime.Now;
@@ -329,5 +331,130 @@ namespace eCommerceApi.Helpers.Database
 
             
         }
+
+
+        //
+
+        public static WooCommerceNET.WooCommerce.v3.ProductCategory GetECategory(eCommerceApi.Model.ProductCategories category)
+        {
+
+            if (category != null)
+            {
+               
+                var cat = new WooCommerceNET.WooCommerce.v3.ProductCategory();
+                cat.id = category.categoryRef;
+                cat.slug = category.slug;
+                cat.description = category.descrip;
+                return cat;
+
+            }
+            return null;
+
+
+        }
+        public static WooCommerceNET.WooCommerce.v3.Product GetEProduct(eCommerceApi.Model.Products product)
+        {
+
+            if (product != null)
+            {
+
+                var db = AppConfig.Instance().Db;
+                var category = db.ProductCategories.GetById(product.categoryId);
+             
+                var p = new WooCommerceNET.WooCommerce.v3.Product();
+                p.id = product.productRef;
+                p.name = product.description;                
+                p.description = product.description;
+                p.short_description = product.shortdescrip;
+                p.categories = new List<WooCommerceNET.WooCommerce.v3.ProductCategoryLine>() 
+                {
+                    new WooCommerceNET.WooCommerce.v3.ProductCategoryLine()
+                    {
+                        id = category.categoryRef,
+                        name = category.descrip,
+                        slug = category.slug
+                    }
+                };
+                p.price = product.price;
+                p.regular_price = product.regular_price;
+                p.sale_price = product.sale_price;
+                p.on_sale = product.on_sale;
+                p.purchasable = product.purchasable;
+                p.total_sales = Convert.ToInt32(product.total_sales);
+                p.tax_status = product.taxt_status;
+                p.manage_stock = product.manage_stock;
+                p.stock_quantity = product.stock_quantity;
+                p.stock_status = product.stock_status;
+                p.backorders_allowed = product.backorders_allowed;
+                p.weight = product.weight;
+                p.dimensions = new WooCommerceNET.WooCommerce.v3.ProductDimension()
+                {
+                    width = product.width.ToString(),
+                    height = product.height.ToString(),
+                    length = product.length.ToString()
+                };
+
+                p.attributes = new List<WooCommerceNET.WooCommerce.v3.ProductAttributeLine>()
+                {
+                  new WooCommerceNET.WooCommerce.v3.ProductAttributeLine()
+                  {
+                      position = product.position,
+                      visible = product.visible
+                  }
+                };
+
+                p.shipping_required = product.shipping_required;
+                p.shipping_taxable = product.shipping_taxable;
+                p.shipping_class_id = product.shipping_class_id.ToString();
+                p.reviews_allowed = product.reviews_allowed;
+                p.average_rating = product.average_rating;
+                p.rating_count = product.rating_count;
+                p.menu_order = product.menu_order;
+                p.status = product.status;
+
+
+                return p;
+           
+
+            }
+            return null;
+
+
+        }
+
+        public static WooCommerceNET.WooCommerce.v3.Customer GetECustomer(eCommerceApi.Model.Customers customer)
+        {
+            if(customer!= null)
+            {
+                WooCommerceNET.WooCommerce.v3.Customer cust = new WooCommerceNET.WooCommerce.v3.Customer();
+                cust.id = Convert.ToInt32(customer.customerRef);
+                cust.username = customer.user_name;
+                cust.password = customer.password;
+                cust.billing = new WooCommerceNET.WooCommerce.v3.CustomerBilling()
+                {
+                    address_1 = customer.address1,
+                    address_2 = customer.address2,
+                    country = customer.country,
+                    city = customer.city,
+                    state = customer.state,
+                    company = customer.company,
+                    postcode = customer.postcode,
+                    phone = customer.phone,
+                    first_name  = customer.customer_name
+                };
+                cust.email = customer.email;
+                cust.role = customer.role;
+
+                return cust;
+
+                
+                
+            }
+            return null;
+
+
+        }
+
+
     }
 }

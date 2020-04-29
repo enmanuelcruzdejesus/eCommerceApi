@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using eCommerceApi.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -10,6 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 
 namespace eCommerceApi
 {
@@ -30,6 +34,17 @@ namespace eCommerceApi
             {
                 options.JsonSerializerOptions.WriteIndented = true;
             });
+
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+
+            services.AddSingleton<SyncJob>();
+            services.AddSingleton(new JobSchedule(
+              jobType: typeof(SyncJob),
+              cronExpression: "0/10 * * * * ?")); // run every 5 seconds
+
+
+            services.AddHostedService<QuartzHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
