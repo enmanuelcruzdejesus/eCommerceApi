@@ -52,14 +52,18 @@ namespace eCommerceApi.Controllers
                             var db = AppConfig.Instance().Db;
                             var list = new List<eCommerceApi.Model.Orders>();
                             list.Add(order);
-                            db.Orders.BulkMerge(list);
+                            //  db.Orders.BulkMerge(list);
+                            DatabaseHelper.OrderBulkMerge(AppConfig.Instance().ConnectionString, list);
+
                             var idorder = DatabaseHelper.GetOrderByRef(order.orderRef).id;
                             var detail = order.Detail;
                             foreach (var item in detail)
                             {
                                 item.orderId = idorder;
                             }
-                            db.OrderDetails.BulkMerge(detail);
+                            //  db.OrderDetails.BulkMerge(detail);
+                            DatabaseHelper.OrderDetailBulkMerge(AppConfig.Instance().ConnectionString, detail);
+
 
 
                         }

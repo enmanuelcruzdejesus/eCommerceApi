@@ -43,7 +43,9 @@ namespace eCommerceApi.Controllers
                 }
 
 
-                db.Customers.BulkMerge(customers);
+                //       db.Customers.BulkMerge(customers);
+                DatabaseHelper.CustomerBulkMerge(AppConfig.Instance().ConnectionString, customers);
+
 
                 return Ok(customers);
 

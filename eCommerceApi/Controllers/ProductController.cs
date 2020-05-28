@@ -44,7 +44,9 @@ namespace eCommerceApi.Controllers
                 }
 
 
-                db.Products.BulkMerge(products);
+                //  db.Products.BulkMerge(products);
+                DatabaseHelper.ProductsBulkMerge(AppConfig.Instance().ConnectionString, products);
+
 
                 return Ok(products);
 

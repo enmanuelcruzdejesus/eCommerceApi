@@ -125,15 +125,6 @@ namespace eCommerceApi.DAL.Services
 
 
 
-        private static object GetDataValue(object value)
-        {
-            if (value == null)
-            {
-                return DBNull.Value;
-            }
-
-            return value;
-        }
 
 
 

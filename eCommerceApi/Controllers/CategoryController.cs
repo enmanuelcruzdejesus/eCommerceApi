@@ -45,7 +45,9 @@ namespace eCommerceApi.Controllers
                 }
 
 
-                db.ProductCategories.BulkMerge(categories);
+                //   db.ProductCategories.BulkMerge(categories);
+                DatabaseHelper.ProductCategoriesBulkMerge(AppConfig.Instance().ConnectionString, categories);
+
 
                 return Ok(categories);
 
