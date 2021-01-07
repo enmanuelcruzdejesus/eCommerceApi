@@ -27,9 +27,9 @@ namespace eCommerceApi.Services
 
         public Task Execute(IJobExecutionContext context)
         {
-            return Task.Run( async () =>
+            return Task.Run(async () =>
             {
-                
+
                 Console.WriteLine("WOOCOMMERCE JOB EXECUTING!!!");
                 var db = AppConfig.Instance().Db;
 
@@ -76,7 +76,24 @@ namespace eCommerceApi.Services
 
                     var response = await _wc.Customer.UpdateRange(customerBatch);
                     if (response.create != customerBatch.create)
+                    {
                         //updating sync table
+                        db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
+
+                        foreach (var i in response.create)
+                        {
+
+                            var cust = insertedCustomers.SingleOrDefault(customer => customer.user_name == i.username);
+                            if (cust != null)
+                                db.Customers.Update(new Customers() { customerRef = Convert.ToString(i.id)}, c => c.id == cust.id);
+
+
+                        }
+
+
+                    }
+
+                    if(response.update != customerBatch.update)
                         db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
 
 
@@ -97,9 +114,9 @@ namespace eCommerceApi.Services
                     var updatedCategories = db.ProductCategories.GetAll().Where(o => Sql.In(o.id, updatedRecords));
 
 
-                    ProductCategoryBatch categoryBatch = new ProductCategoryBatch();    
-                    
-                    if(insertedCategories.Count() > 0)
+                    ProductCategoryBatch categoryBatch = new ProductCategoryBatch();
+
+                    if (insertedCategories.Count() > 0)
                     {
                         var create = new List<ProductCategory>();
                         foreach (var item in insertedCategories)
@@ -123,9 +140,28 @@ namespace eCommerceApi.Services
                     }
 
                     var response = await _wc.Category.UpdateRange(categoryBatch);
-                    if(response.create != categoryBatch.create)
+                    if (response.create != categoryBatch.create)
+                    {
                         //updating sync table
                         db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductCategories");
+
+                        //updating productRef
+
+                        foreach (var i in response.create)
+                        {
+
+                            var category = insertedCategories.SingleOrDefault(cat => cat.descrip == i.description);
+                            if (category != null)
+                                db.ProductCategories.Update(new ProductCategories() { categoryRef = Convert.ToInt32(i.id) }, c => c.id == category.id);
+
+
+                        }
+                    }
+
+                    if(response.update!= categoryBatch.update)
+                        //updating sync table
+                        db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductCategories");
+
 
 
 
@@ -134,8 +170,8 @@ namespace eCommerceApi.Services
 
                 if (AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > productLastUpdateSync).Count() > 0)
                 {
-                    var insertedRecords = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Insert" && t.CreatedDate > categoryLastUpdateSync).Select(x => x.TransId);
-                    var updatedRecords = db.TransSyncLog.Get(t => t.TableName == "Proudcts" && t.Operation == "Update" && t.CreatedDate > categoryLastUpdateSync).Select(x => x.TransId);
+                    var insertedRecords = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Insert" && t.CreatedDate > productLastUpdateSync).Select(x => x.TransId);
+                    var updatedRecords = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Update" && t.CreatedDate > productLastUpdateSync).Select(x => x.TransId);
 
 
                     //Getting sales orders and payments
@@ -153,7 +189,7 @@ namespace eCommerceApi.Services
                             var i = DatabaseHelper.GetEProduct(item);
                             create.Add(i);
                         }
-                       productBatch.create = create;
+                        productBatch.create = create;
                     }
 
                     if (updatedProducts.Count() > 0)
@@ -169,11 +205,31 @@ namespace eCommerceApi.Services
                     }
 
                     var response = await _wc.Product.UpdateRange(productBatch);
+
+
+
+
                     //updating sync table
                     if (response.create != productBatch.create)
+                    {
                         db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Products");
 
+                        //updating productRef
 
+                        foreach (var i in response.create)
+                        {
+
+                            var p = insertedProducts.SingleOrDefault(pro => pro.description == i.description);
+                            if (p != null)
+                                db.Products.Update(new Products() { productRef = Convert.ToInt32(i.id) }, product => product.id == p.id);
+
+
+                        }
+                    }
+
+
+                    if (response.update != productBatch.update)
+                        db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Products");
 
                 }
 
@@ -182,9 +238,9 @@ namespace eCommerceApi.Services
 
 
             });
-          
 
-           
+
+
         }
     }
 }

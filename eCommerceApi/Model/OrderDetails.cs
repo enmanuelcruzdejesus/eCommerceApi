@@ -22,7 +22,7 @@ namespace eCommerceApi.Model
         public int orderId { get; set; }
         public int productId { get; set; }
         public string descrip { get; set; }
-        public int quantity { get; set; }
+        public decimal quantity { get; set; }
         public decimal price { get; set; }
         public decimal subtotal { get; set; }
         public string tax_class { get; set; }

@@ -435,6 +435,12 @@ namespace eCommerceApi.Helpers.Database
                 cust.id = Convert.ToInt32(customer.customerRef);
                 cust.username = customer.user_name;
                 cust.password = customer.password;
+                cust.first_name = customer.customer_name;
+                cust.date_created_gmt = DateTime.Now;
+                cust.is_paying_customer = true;
+                cust.date_modified = DateTime.Now;
+                cust.date_created = DateTime.Now;
+               
                 cust.billing = new WooCommerceNET.WooCommerce.v3.CustomerBilling()
                 {
                     address_1 = customer.address1,
