@@ -306,7 +306,7 @@ namespace eCommerceApi.Helpers.Database
 
                     }
 
-                    i.quantity = Convert.ToInt32(item.quantity);
+                    i.quantity = Convert.ToDecimal(item.quantity);
                     i.price = Convert.ToDecimal(item.price);
                     i.subtotal = Convert.ToDecimal(item.subtotal);
                     i.tax_class = item.tax_class;
