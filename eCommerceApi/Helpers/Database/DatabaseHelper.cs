@@ -94,6 +94,7 @@ namespace eCommerceApi.Helpers.Database
         public static eCommerceApi.Model.ProductCategories GetCategoryFromEProductCategory(WooCommerceNET.WooCommerce.v3.ProductCategory category)
         {
             var obj = new ProductCategories();
+            obj.name = category.name;
             obj.descrip = category.description;
             obj.slug = category.slug;
 
@@ -348,6 +349,7 @@ namespace eCommerceApi.Helpers.Database
                
                 var cat = new WooCommerceNET.WooCommerce.v3.ProductCategory();
                 cat.id = category.categoryRef;
+                cat.name = category.name;
                 cat.slug = category.slug;
                 cat.description = category.descrip;
                 return cat;
@@ -845,6 +847,7 @@ namespace eCommerceApi.Helpers.Database
                                         USING (VALUES (
                                              @id,
                                              @categoryRef,
+                                             @name,
                                              @descrip,
                                              @slug,
                                              @created,
@@ -853,6 +856,7 @@ namespace eCommerceApi.Helpers.Database
                                             (
                                           id,
                                           categoryRef,
+                                          name,
                                           descrip,
                                           slug,
                                           created,
@@ -861,13 +865,16 @@ namespace eCommerceApi.Helpers.Database
                                             ON src.id = dest.id
                                         WHEN MATCHED THEN
                                             UPDATE SET 
+                                            [name]=src.name,
 	                                       [descrip]=src.descrip,
                                            [slug]=src.slug,                                     
                                            [lastupdate]=src.lastupdate                                     
                                             WHEN NOT MATCHED THEN
                                             INSERT VALUES 	
-                                          (	                               
+                                          (	    
+                                
                                          src.[categoryRef],
+                                         src.[name],
                                          src.[descrip],
                                          src.[slug],
                                          src.[created],
@@ -876,6 +883,7 @@ namespace eCommerceApi.Helpers.Database
 
                 var id = oCmd.CreateParameter(); id.ParameterName = "@id"; oCmd.Parameters.Add(id);
                 var categoryRef = oCmd.CreateParameter(); categoryRef.ParameterName = "@categoryRef"; oCmd.Parameters.Add(categoryRef);
+                var name = oCmd.CreateParameter(); name.ParameterName = "@name"; oCmd.Parameters.Add(name);
                 var descrip = oCmd.CreateParameter(); descrip.ParameterName = "@descrip"; oCmd.Parameters.Add(descrip);
                 var slug = oCmd.CreateParameter(); slug.ParameterName = "@slug"; oCmd.Parameters.Add(slug);
                 var created = oCmd.CreateParameter(); created.ParameterName = "@created"; oCmd.Parameters.Add(created);
@@ -885,6 +893,7 @@ namespace eCommerceApi.Helpers.Database
                 {
                     id.Value = category.id;
                     categoryRef.Value = category.categoryRef;
+                    name.Value = category.name;
                     descrip.Value = category.descrip;
                     slug.Value = GetDataValue(category.slug);
                     created.Value = category.created;

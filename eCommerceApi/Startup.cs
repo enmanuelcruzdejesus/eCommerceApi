@@ -35,16 +35,16 @@ namespace eCommerceApi
                 options.JsonSerializerOptions.WriteIndented = true;
             });
 
-            //services.AddSingleton<IJobFactory, SingletonJobFactory>();
-            //services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
-            //services.AddSingleton<SyncJob>();
-            //services.AddSingleton(new JobSchedule(
-            //  jobType: typeof(SyncJob),
-            //  cronExpression: "0/10 * * * * ?")); // run every 5 seconds
+            services.AddSingleton<SyncJob>();
+            services.AddSingleton(new JobSchedule(
+              jobType: typeof(SyncJob),
+              cronExpression: "0/10 * * * * ?")); // run every 5 seconds
 
 
-            //services.AddHostedService<QuartzHostedService>();
+            services.AddHostedService<QuartzHostedService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
