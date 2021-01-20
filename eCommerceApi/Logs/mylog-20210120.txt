@@ -1,0 +1,4 @@
+2021-01-20T09:13:05.1175006-04:00  [INF] Application started. Press Ctrl+C to shut down. (dcaefe54)
+2021-01-20T09:13:05.1520060-04:00  [INF] Hosting environment: "Development" (c3307c92)
+2021-01-20T09:13:05.1568891-04:00  [INF] Content root path: "C:\Users\qsu004\Source\Repos\eCommerceApi\eCommerceApi" (b5d60022)
+2021-01-20T09:13:05.3306731-04:00 8000000a-0005-fd00-b63f-84710c7967bb [WRN] Failed to determine the https port for redirect. (ca76cc21)

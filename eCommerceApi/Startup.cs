@@ -45,10 +45,12 @@ namespace eCommerceApi
 
 
             services.AddHostedService<QuartzHostedService>();
+
+            services.AddApplicationInsightsTelemetry();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             
             if (env.IsDevelopment())
@@ -67,6 +69,10 @@ namespace eCommerceApi
             {
                 endpoints.MapControllers();
             });
+
+            //// other code remove for clarity 
+            //loggerFactory.AddFile("Logs/mylog-{Date}.txt");
+
         }
     }
 }

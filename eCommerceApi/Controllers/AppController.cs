@@ -7,6 +7,7 @@ using ApiCore;
 using eCommerceApi.Helpers.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
@@ -20,7 +21,13 @@ namespace eCommerceApi.Controllers
     {
         RestAPI _restApi;
 
-        public AppController() { _restApi = AppConfig.Instance().Service; }
+        private readonly ILogger<AppController> _logger;
+
+        public AppController(ILogger<AppController> logger) 
+        {
+            _logger = logger;
+            _restApi = AppConfig.Instance().Service; 
+        }
 
 
 
@@ -30,6 +37,7 @@ namespace eCommerceApi.Controllers
         {
             try
             {
+                _logger.LogInformation("order webhook");
 
                 //Get webhooks response payload
                 string jsonData = null;
@@ -85,7 +93,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex,ex.ToString());
                 return StatusCode(500, ex);
             }
 

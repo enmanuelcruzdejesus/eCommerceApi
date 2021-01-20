@@ -6,6 +6,7 @@ using ApiCore;
 using eCommerceApi.Helpers.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 
@@ -16,8 +17,12 @@ namespace eCommerceApi.Controllers
     public class ProductController : ControllerBase
     {
         RestAPI _restApi;
+        private readonly ILogger<ProductController> _logger;
 
-        public ProductController() { _restApi = AppConfig.Instance().Service; }
+        public ProductController(ILogger<ProductController> logger) {
+            _logger = logger;
+            _restApi = AppConfig.Instance().Service;
+        }
 
 
         [HttpPost("download")]
@@ -54,7 +59,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
 

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ApiCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 
@@ -15,9 +16,11 @@ namespace eCommerceApi.Controllers
     public class eOrderController : ControllerBase
     {
         RestAPI _restApi;
-
-       public eOrderController()
+        private readonly ILogger<eOrderController> _logger;
+        public eOrderController(ILogger<eOrderController> logger)
         {
+            _logger = logger;
+
             _restApi = AppConfig.Instance().Service;
         }
 
@@ -37,7 +40,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
 
@@ -46,12 +49,22 @@ namespace eCommerceApi.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Post(Order order)
         {
-            WCObject wc = new WCObject(_restApi);
+            try
+            {
+                WCObject wc = new WCObject(_restApi);
 
-           
-            var result = await wc.Order.Add(order);
 
-            return Ok(result);
+                var result = await wc.Order.Add(order);
+
+                return Ok(result);
+
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+            }
+          
         }
 
 

@@ -6,6 +6,7 @@ using ApiCore;
 using eCommerceApi.Helpers.Database;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 
@@ -16,7 +17,14 @@ namespace eCommerceApi.Controllers
     public class CustomerController : ControllerBase
     {
         RestAPI _restApi;
-        public CustomerController() { _restApi = AppConfig.Instance().Service;  }
+
+        private readonly ILogger<CustomerController> _logger;
+
+        public CustomerController(ILogger<CustomerController> logger) {
+            _logger = logger;
+            _restApi = AppConfig.Instance().Service;  
+        
+        }
 
 
 
@@ -53,7 +61,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
 

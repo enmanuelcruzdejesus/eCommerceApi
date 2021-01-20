@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ApiCore;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
 
@@ -16,8 +17,10 @@ namespace eCommerceApi.Controllers
     public class eProductController : ControllerBase
     {
         RestAPI _restApi;
-        public eProductController()
+        private readonly ILogger<eProductController> _logger;
+        public eProductController(ILogger<eProductController> logger)
         {
+            _logger = logger;
             _restApi = AppConfig.Instance().Service;
         }
 
@@ -38,7 +41,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex )
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
           
@@ -60,7 +63,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
 
@@ -90,7 +93,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
 
@@ -119,7 +122,7 @@ namespace eCommerceApi.Controllers
             }
             catch (Exception ex)
             {
-
+                _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
 
