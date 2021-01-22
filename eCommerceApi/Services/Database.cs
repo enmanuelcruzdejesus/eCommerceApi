@@ -8,6 +8,7 @@ namespace eCommerceApi.DAL.Services
 {
     public class Database
     {
+        private IRepository<Users> _Users = null;
         private IRepository<Customers> _Customers = null;
         private IRepository<ProductCategories> _ProductsCategories = null;
         private IRepository<Products> _Products = null;
@@ -28,6 +29,17 @@ namespace eCommerceApi.DAL.Services
             this._connectionString = connectionString;
             _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
 
+        }
+
+        public IRepository<Users> Users
+        {
+            get
+            {
+                if (_Users == null)
+                    _Users = new ServiceStackRepository<Users>(_dbFactory);
+
+                return _Users;
+            }
         }
 
         public IRepository<Customers> Customers
