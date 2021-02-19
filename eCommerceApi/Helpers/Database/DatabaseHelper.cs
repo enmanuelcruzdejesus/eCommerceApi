@@ -373,7 +373,9 @@ namespace eCommerceApi.Helpers.Database
                 p.name = product.description;                
                 p.description = product.description;
                 p.short_description = product.shortdescrip;
-                p.categories = new List<WooCommerceNET.WooCommerce.v3.ProductCategoryLine>() 
+                if(category != null)
+                {
+                    p.categories = new List<WooCommerceNET.WooCommerce.v3.ProductCategoryLine>()
                 {
                     new WooCommerceNET.WooCommerce.v3.ProductCategoryLine()
                     {
@@ -382,6 +384,8 @@ namespace eCommerceApi.Helpers.Database
                         slug = category.slug
                     }
                 };
+                }
+               
                 p.price = product.price;
                 p.regular_price = product.regular_price;
                 p.sale_price = product.sale_price;

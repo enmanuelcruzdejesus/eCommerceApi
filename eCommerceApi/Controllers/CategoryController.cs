@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
+using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
+using eCommerceApi.Model;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,13 +21,77 @@ namespace eCommerceApi.Controllers
     public class CategoryController : ControllerBase
     {
         RestAPI _restApi;
+        WCObject _wc;
+        Database _db;
+
 
         private readonly ILogger<CategoryController> _logger;
 
         public CategoryController(ILogger<CategoryController> logger) 
         {
-            _logger = logger;   
-            _restApi = AppConfig.Instance().Service; 
+            _logger = logger;
+           
+            _restApi = AppConfig.Instance().Service;
+            _db = AppConfig.Instance().Db;
+
+            _wc = new WCObject(_restApi);
+        }
+
+
+        [HttpPost("uploadAll")]
+        public async Task<IActionResult> Upload()
+        {
+
+            try
+            {
+                var categories = _db.ProductCategories.Get(x => x.categoryRef == 0).Take(100);
+                ProductCategoryBatch categoryBatch = new ProductCategoryBatch();
+                if (categories.Count() > 0)
+                {
+                    var create = new List<ProductCategory>();
+                    foreach (var item in categories)
+                    {
+                        var i = DatabaseHelper.GetECategory(item);
+                        create.Add(i);
+                    }
+                    categoryBatch.create = create;
+                    var response = await _wc.Category.UpdateRange(categoryBatch);
+
+                    if (response.create != categoryBatch.create)
+                    {
+                        //updating sync table
+                        _db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductCategories");
+
+                        //updating productRef
+                        foreach (var i in response.create)
+                        {
+
+                            var category = categories.SingleOrDefault(cat => cat.descrip == i.description);
+                         
+
+                            if (category != null)
+                                _db.ProductCategories.Update(new ProductCategories() { categoryRef = Convert.ToInt32(i.id) }, c => c.id == category.id);
+
+
+                        }
+                    }
+
+
+                    return Ok("the data was uploaded!");
+
+                }
+
+
+                return NoContent();
+
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+            }
+
+          
         }
 
 
