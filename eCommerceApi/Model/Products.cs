@@ -18,6 +18,8 @@ namespace eCommerceApi.Model
         public string description { get; set; }
         public string shortdescrip { get; set; }
         public int categoryId { get; set; }
+
+        public int subCategoryId { get; set; }
         public decimal price { get; set; }
         public decimal regular_price { get; set; }
         public decimal sale_price { get; set; }

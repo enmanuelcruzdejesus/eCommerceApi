@@ -11,6 +11,7 @@ namespace eCommerceApi.DAL.Services
         private IRepository<Users> _Users = null;
         private IRepository<Customers> _Customers = null;
         private IRepository<ProductCategories> _ProductsCategories = null;
+        private IRepository<SubCategories> _SubCategories = null;
         private IRepository<Products> _Products = null;
         private IRepository<Orders> _salesOrders = null;
         private IRepository<OrderDetails> _salesOrderssDetails = null;
@@ -62,6 +63,19 @@ namespace eCommerceApi.DAL.Services
                     _ProductsCategories = new ServiceStackRepository<ProductCategories>(_dbFactory);
 
                 return _ProductsCategories;
+            }
+
+        }
+
+
+        public IRepository<SubCategories> SubCategories
+        {
+            get
+            {
+                if (_SubCategories == null)
+                    _SubCategories = new ServiceStackRepository<SubCategories>(_dbFactory);
+
+                return _SubCategories;
             }
 
         }

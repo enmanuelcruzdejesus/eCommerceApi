@@ -35,7 +35,10 @@ namespace eCommerceApi.Services
 
                 var customerLastUpdateSync = db.GetLastUpdateDate(100, "Customers");
                 var categoryLastUpdateSync = db.GetLastUpdateDate(100, "ProductCategories");
+                var subCategoriesLastUpdateSync = db.GetLastUpdateDate(100, "SubCategories");
                 var productLastUpdateSync = db.GetLastUpdateDate(100, "Products");
+
+
 
 
                 if (AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > customerLastUpdateSync).Count() > 0)
@@ -114,6 +117,7 @@ namespace eCommerceApi.Services
                     var updatedCategories = db.ProductCategories.GetAll().Where(o => Sql.In(o.id, updatedRecords));
 
 
+
                     ProductCategoryBatch categoryBatch = new ProductCategoryBatch();
 
                     if (insertedCategories.Count() > 0)
@@ -124,6 +128,8 @@ namespace eCommerceApi.Services
                             var i = DatabaseHelper.GetECategory(item);
                             create.Add(i);
                         }
+
+
                         categoryBatch.create = create;
                     }
 
@@ -168,6 +174,74 @@ namespace eCommerceApi.Services
 
                 }
 
+
+                if (AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > subCategoriesLastUpdateSync).Count() > 0)
+                {
+                    var insertedRecords = db.TransSyncLog.Get(t => t.TableName == "SubCategories" && t.Operation == "Insert" && t.CreatedDate > subCategoriesLastUpdateSync).Select(x => x.TransId);
+                    var updatedRecords = db.TransSyncLog.Get(t => t.TableName == "SubCategories" && t.Operation == "Update" && t.CreatedDate > subCategoriesLastUpdateSync).Select(x => x.TransId);
+
+
+                    //Getting sales orders and payments
+                    var insertedSubCategories = db.SubCategories.GetAll().Where(o => Sql.In(o.id, insertedRecords));
+                    var updatedSubCategories = db.SubCategories.GetAll().Where(o => Sql.In(o.id, updatedRecords));
+
+
+                    ProductCategoryBatch categoryBatch = new ProductCategoryBatch();
+
+                    if (insertedSubCategories.Count() > 0)
+                    {
+                        var create = new List<ProductCategory>();
+                        foreach (var item in insertedSubCategories)
+                        {
+                            var i = DatabaseHelper.GetESubCategory(item);
+                            create.Add(i);
+                        }
+                        categoryBatch.create = create;
+                    }
+
+                    if (updatedSubCategories.Count() > 0)
+                    {
+                        var update = new List<ProductCategory>();
+                        foreach (var item in updatedSubCategories)
+                        {
+                            var x = DatabaseHelper.GetESubCategory(item);
+                            update.Add(x);
+                        }
+                        categoryBatch.update = update;
+
+                    }
+
+                    var response = await _wc.Category.UpdateRange(categoryBatch);
+                    if (response.create != categoryBatch.create)
+                    {
+                        //updating sync table
+                        db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "SubCategories");
+
+                        //updating productRef
+
+                        foreach (var i in response.create)
+                        {
+
+                            var category = insertedSubCategories.SingleOrDefault(cat => cat.descrip == i.description);
+                            if (category != null)
+                                db.SubCategories.Update(new SubCategories() { categoryRef = Convert.ToInt32(i.id) }, c => c.id == category.id);
+
+
+                        }
+                    }
+
+                    if (response.update != categoryBatch.update)
+                        //updating sync table
+                        db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "SubCategories");
+
+
+
+
+
+                }
+
+
+                //PRODUCTOS
                 if (AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > productLastUpdateSync).Count() > 0)
                 {
                     var insertedRecords = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Insert" && t.CreatedDate > productLastUpdateSync).Select(x => x.TransId);

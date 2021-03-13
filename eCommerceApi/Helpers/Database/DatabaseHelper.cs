@@ -14,6 +14,8 @@ namespace eCommerceApi.Helpers.Database
     public class DatabaseHelper
     {
         
+
+      
        
         public static Orders GetOrderByRef(int IdRef)
         {
@@ -359,6 +361,36 @@ namespace eCommerceApi.Helpers.Database
 
 
         }
+
+
+
+        public static WooCommerceNET.WooCommerce.v3.ProductCategory GetESubCategory(eCommerceApi.Model.SubCategories category)
+        {
+
+            if (category != null  && category.parent > 0)
+            {
+
+                var cat = new WooCommerceNET.WooCommerce.v3.ProductCategory();
+                cat.id = category.categoryRef;
+                cat.name = category.name;
+                cat.slug = category.slug;
+                cat.description = category.descrip;
+
+
+
+
+                var parentCategory = AppConfig.Instance().Db.ProductCategories.GetById(category.parent);
+                cat.parent = parentCategory.categoryRef;
+
+
+
+                return cat;
+
+            }
+            return null;
+
+
+        }
         public static WooCommerceNET.WooCommerce.v3.Product GetEProduct(eCommerceApi.Model.Products product)
         {
 
@@ -366,7 +398,15 @@ namespace eCommerceApi.Helpers.Database
             {
 
                 var db = AppConfig.Instance().Db;
-                var category = db.ProductCategories.GetById(product.categoryId);
+
+                dynamic category = null;
+
+
+                if (product.categoryId > 0)
+                    category = db.ProductCategories.GetById(product.categoryId);
+                else
+                    category = db.SubCategories.GetById(product.subCategoryId);
+
              
                 var p = new WooCommerceNET.WooCommerce.v3.Product();
                 p.id = product.productRef;
