@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
+using System.Linq;
 using eCommerceApi.DAL.Services;
+using eCommerceApi.Model;
 using Microsoft.Extensions.Configuration;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
@@ -16,7 +19,6 @@ namespace ApiCore
         private static string _connectionString;
         private static IDbConnectionFactory _dbFactory;
         private Database _db = null;
-
         private RestAPI _restApi = null;
 
         //public static string code;
@@ -62,6 +64,9 @@ namespace ApiCore
 
             _instance = null;
             _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+           
+          
         }
         #endregion
 
@@ -109,11 +114,9 @@ namespace ApiCore
             }
         }
 
-
+   
 
         public IDbConnectionFactory DbFactory { get { return _dbFactory; } }
-
-
 
 
         #endregion
@@ -124,7 +127,11 @@ namespace ApiCore
             _instance = null;
             _connectionString = null;
             //_dbFactory = null;
+          
         }
+
+
+
 
         #endregion
 

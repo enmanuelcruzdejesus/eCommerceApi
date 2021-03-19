@@ -29,6 +29,8 @@ namespace ApiCore.Services
 
         int Update(TEntity entity, Expression<Func<TEntity, bool>> predicate);
 
+
+        int UpdateAll(IEnumerable<TEntity> entities);
         int Insert(TEntity entity);
 
         int Insert(object entity);

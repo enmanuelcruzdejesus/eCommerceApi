@@ -6,6 +6,7 @@ using ApiCore;
 using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
+using eCommerceApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -22,13 +23,15 @@ namespace eCommerceApi.Controllers
         WCObject _wc;
         Database _db;
         private readonly ILogger<ProductController> _logger;
-
+        SyncProduct _syncProduct;
         public ProductController(ILogger<ProductController> logger) {
             _logger = logger;
             _restApi = AppConfig.Instance().Service;
             _db = AppConfig.Instance().Db;
 
             _wc = new WCObject(_restApi);
+
+            _syncProduct = new SyncProduct(_restApi);
         }
 
         [HttpPost("uploadAll")]
@@ -121,6 +124,22 @@ namespace eCommerceApi.Controllers
                 return StatusCode(500, ex);
             }
 
+        }
+
+        [HttpPost("sync")]
+        public async Task<IActionResult> Sync()
+        {
+            try
+            {
+                await _syncProduct.Sync();
+                return Ok();
+
+            }catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+            }
+           
         }
     }
 }

@@ -42,10 +42,11 @@ namespace eCommerceApi
             services.AddSingleton<IJobFactory, SingletonJobFactory>();
             services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
+
             services.AddSingleton<SyncJob>();
             services.AddSingleton(new JobSchedule(
               jobType: typeof(SyncJob),
-              cronExpression: "0/10 * * * * ?")); // run every 5 seconds
+              cronExpression: "0 0/4 * * * ?")); // run every 5 minutes
 
 
             services.AddHostedService<QuartzHostedService>();

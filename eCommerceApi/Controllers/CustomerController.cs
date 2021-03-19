@@ -29,6 +29,24 @@ namespace eCommerceApi.Controllers
         }
 
 
+        [HttpGet("getall")]
+        public IActionResult Get() 
+        {
+            try
+            {
+
+                var db = AppConfig.Instance().Db;
+                var customers = db.Customers.GetAll();
+                return Ok(customers);
+
+            }catch(Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+
+            }
+        }
+
 
         [HttpPost("download")]
         public async Task<IActionResult> Post()
@@ -68,5 +86,8 @@ namespace eCommerceApi.Controllers
             }
 
         }
+
+
+
     }
 }

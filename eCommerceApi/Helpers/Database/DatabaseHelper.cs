@@ -127,6 +127,7 @@ namespace eCommerceApi.Helpers.Database
             var obj = new Products();
             obj.description = product.name;
             obj.shortdescrip = product.short_description;
+            obj.sku = product.sku;
 
             if (product.categories.Count > 0)
             {
@@ -352,6 +353,22 @@ namespace eCommerceApi.Helpers.Database
                 cat.name = category.name;
                 cat.slug = category.slug;
                 cat.description = category.descrip;
+                cat.parent = category.parent;
+
+                //if (category.parent > 0)
+                //{
+                   
+                //    var parent = AppConfig.Instance().TempCategories.Single(t => t.parent == category.parent);
+                //    if(parent != null)
+                //    {
+                //        if(parent.categoryRef > 0)
+                //        {
+                //            cat.parent = parent.categoryRef;
+                //        }
+                //    }
+                   
+                //}
+
                 return cat;
 
             }
@@ -373,6 +390,7 @@ namespace eCommerceApi.Helpers.Database
                 p.name = product.description;                
                 p.description = product.description;
                 p.short_description = product.shortdescrip;
+                p.sku = product.sku;
                 if(category != null)
                 {
                     p.categories = new List<WooCommerceNET.WooCommerce.v3.ProductCategoryLine>()
@@ -625,6 +643,7 @@ namespace eCommerceApi.Helpers.Database
                                             @productRef,
                                             @description,
                                             @shortdescrip,
+                                            @sku,
                                             @categoryId,
                                             @price,
                                             @regular_price,
@@ -660,6 +679,7 @@ namespace eCommerceApi.Helpers.Database
                                             productRef,
                                             description,
                                             shortdescrip,
+                                            sku,
                                             categoryId,
                                             price,
                                             regular_price,
@@ -695,6 +715,7 @@ namespace eCommerceApi.Helpers.Database
                                             UPDATE SET 
 	                                       [description]=src.description,
                                             [shortdescrip]=src.shortdescrip,
+                                            [sku]=src.sku,
                                             [categoryId]=src.categoryId,
                                             [price]=src.price,
                                             [regular_price]=src.regular_price,
@@ -728,6 +749,7 @@ namespace eCommerceApi.Helpers.Database
                                                         src.[productRef],
                                                         src.[description],
                                                         src.[shortdescrip],
+                                                        src.[sku],
                                                         src.[categoryId],
                                                         src.[price],
                                                         src.[regular_price],
@@ -762,6 +784,7 @@ namespace eCommerceApi.Helpers.Database
                 var productRef = oCmd.CreateParameter(); productRef.ParameterName = "@productRef"; oCmd.Parameters.Add(productRef);
                 var description = oCmd.CreateParameter(); description.ParameterName = "@description"; oCmd.Parameters.Add(description);
                 var shortdescrip = oCmd.CreateParameter(); shortdescrip.ParameterName = "@shortdescrip"; oCmd.Parameters.Add(shortdescrip);
+                var sku = oCmd.CreateParameter(); sku.ParameterName = "@sku"; oCmd.Parameters.Add(sku);
                 var categoryId = oCmd.CreateParameter(); categoryId.ParameterName = "@categoryId"; oCmd.Parameters.Add(categoryId);
                 var price = oCmd.CreateParameter(); price.ParameterName = "@price"; oCmd.Parameters.Add(price);
                 var regular_price = oCmd.CreateParameter(); regular_price.ParameterName = "@regular_price"; oCmd.Parameters.Add(regular_price);
@@ -798,6 +821,7 @@ namespace eCommerceApi.Helpers.Database
                     productRef.Value = item.productRef;
                     description.Value = item.description;
                     shortdescrip.Value = item.shortdescrip;
+                    sku.Value = item.sku;
                     categoryId.Value = item.categoryId;
                     price.Value = item.price;
                     regular_price.Value = item.regular_price;
@@ -853,6 +877,7 @@ namespace eCommerceApi.Helpers.Database
                                              @categoryRef,
                                              @name,
                                              @descrip,
+                                             @parent,
                                              @slug,
                                              @created,
                                              @lastupdate))
@@ -862,6 +887,7 @@ namespace eCommerceApi.Helpers.Database
                                           categoryRef,
                                           name,
                                           descrip,
+                                          parent,
                                           slug,
                                           created,
                                           lastupdate
@@ -871,6 +897,7 @@ namespace eCommerceApi.Helpers.Database
                                             UPDATE SET 
                                             [name]=src.name,
 	                                       [descrip]=src.descrip,
+                                           [parent]=src.parent,
                                            [slug]=src.slug,                                     
                                            [lastupdate]=src.lastupdate                                     
                                             WHEN NOT MATCHED THEN
@@ -880,6 +907,7 @@ namespace eCommerceApi.Helpers.Database
                                          src.[categoryRef],
                                          src.[name],
                                          src.[descrip],
+                                         src.[parent],
                                          src.[slug],
                                          src.[created],
                                          src.[lastupdate]);",
@@ -889,6 +917,7 @@ namespace eCommerceApi.Helpers.Database
                 var categoryRef = oCmd.CreateParameter(); categoryRef.ParameterName = "@categoryRef"; oCmd.Parameters.Add(categoryRef);
                 var name = oCmd.CreateParameter(); name.ParameterName = "@name"; oCmd.Parameters.Add(name);
                 var descrip = oCmd.CreateParameter(); descrip.ParameterName = "@descrip"; oCmd.Parameters.Add(descrip);
+                var parent = oCmd.CreateParameter(); parent.ParameterName = "@parent"; oCmd.Parameters.Add(parent);
                 var slug = oCmd.CreateParameter(); slug.ParameterName = "@slug"; oCmd.Parameters.Add(slug);
                 var created = oCmd.CreateParameter(); created.ParameterName = "@created"; oCmd.Parameters.Add(created);
                 var lastupdate = oCmd.CreateParameter(); lastupdate.ParameterName = "@lastupdate"; oCmd.Parameters.Add(lastupdate);
@@ -899,6 +928,7 @@ namespace eCommerceApi.Helpers.Database
                     categoryRef.Value = category.categoryRef;
                     name.Value = category.name;
                     descrip.Value = category.descrip;
+                    parent.Value = category.parent;
                     slug.Value = GetDataValue(category.slug);
                     created.Value = category.created;
                     lastupdate.Value = category.lastupdate;

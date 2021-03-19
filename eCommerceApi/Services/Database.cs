@@ -126,7 +126,7 @@ namespace eCommerceApi.DAL.Services
 
         public DateTime GetLastUpdateDate(int userId, string tableName)
         {
-            using (var dbCmd = _dbFactory.Open().CreateCommand())
+            using (var dbCmd = _dbFactory.OpenDbConnection().CreateCommand())
             {
                 dbCmd.CommandText = String.Format("SELECT LastUpdateSync FROM synctables WHERE UserId = {0} AND TableName = '{1}'", userId, tableName);
                 var result = dbCmd.ExecuteScalar();

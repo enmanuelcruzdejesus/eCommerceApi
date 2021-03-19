@@ -19,7 +19,11 @@ namespace eCommerceApi.Model
 
         public string name { get; set; }
         public string descrip { get; set; }
+
+        public int parent { get; set; }
         public string slug { get; set; }
+
+      
 
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }

@@ -17,6 +17,8 @@ namespace eCommerceApi.Model
         public int productRef { get; set; }
         public string description { get; set; }
         public string shortdescrip { get; set; }
+
+        public string sku { get; set; }
         public int categoryId { get; set; }
         public decimal price { get; set; }
         public decimal regular_price { get; set; }
