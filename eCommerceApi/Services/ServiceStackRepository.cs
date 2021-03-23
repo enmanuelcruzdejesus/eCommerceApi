@@ -135,9 +135,7 @@ namespace ApiCore.Services
             using (var db = _dbFactory.OpenDbConnection())
             {
                return db.UpdateAll<TEntity>(entities);
-               
-             
-
+        
             }
         }
         public int Delete(TEntity entity)

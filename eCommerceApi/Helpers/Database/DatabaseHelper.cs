@@ -13,8 +13,8 @@ namespace eCommerceApi.Helpers.Database
 {
     public class DatabaseHelper
     {
-        
-       
+
+
         public static Orders GetOrderByRef(int IdRef)
         {
             var query = AppConfig.Instance().Db.Orders.Get(o => o.orderRef == IdRef).FirstOrDefault();
@@ -69,14 +69,14 @@ namespace eCommerceApi.Helpers.Database
 
 
             var any = GetCustomerByRef(Convert.ToInt32(customer.id));
-            if ( any != null)
+            if (any != null)
             {
 
                 obj.id = any.id;
                 obj.customerRef = any.customerRef;
                 obj.created = any.created;
                 obj.lastupdate = DateTime.Now;
-              
+
             }
             else
             {
@@ -88,7 +88,7 @@ namespace eCommerceApi.Helpers.Database
             }
 
             return obj;
-  
+
         }
 
         public static eCommerceApi.Model.ProductCategories GetCategoryFromEProductCategory(WooCommerceNET.WooCommerce.v3.ProductCategory category)
@@ -106,8 +106,8 @@ namespace eCommerceApi.Helpers.Database
                 obj.categoryRef = any.categoryRef;
                 obj.created = any.created;
                 obj.lastupdate = DateTime.Now;
-         
-             
+
+
             }
             else
             {
@@ -150,7 +150,7 @@ namespace eCommerceApi.Helpers.Database
             obj.weight = Convert.ToDecimal(product.weight);
             if (product.dimensions != null)
             {
-                if(string.IsNullOrEmpty(product.dimensions.width) || string.IsNullOrWhiteSpace(product.dimensions.width))
+                if (string.IsNullOrEmpty(product.dimensions.width) || string.IsNullOrWhiteSpace(product.dimensions.width))
                 {
                     obj.width = 0;
                 }
@@ -178,18 +178,18 @@ namespace eCommerceApi.Helpers.Database
                     obj.height = Convert.ToDecimal(product.dimensions.height);
                 }
 
-             
-              
-               
+
+
+
             }
-            if (product.attributes!= null)
+            if (product.attributes != null)
             {
-                if(product.attributes.Count > 0)
+                if (product.attributes.Count > 0)
                 {
                     obj.position = Convert.ToInt32(product.attributes[0].position);
                     obj.visible = Convert.ToBoolean(product.attributes[0].visible);
                 }
-              
+
             }
 
             obj.shipping_required = Convert.ToBoolean(product.shipping_required);
@@ -246,8 +246,8 @@ namespace eCommerceApi.Helpers.Database
             else
                 obj.date_completed = null;
 
-         
-         
+
+
             obj.currency = order.currency;
             obj.payment_menthod = order.payment_method;
             obj.payment_menthod_title = order.payment_method_title;
@@ -257,13 +257,13 @@ namespace eCommerceApi.Helpers.Database
             obj.prices_include_tax = Convert.ToBoolean(order.prices_include_tax);
             if (order.tax_lines != null)
             {
-                if(order.tax_lines.Count > 0)
+                if (order.tax_lines.Count > 0)
                 {
                     obj.rateId = Convert.ToInt32(order.tax_lines[0].rate_id);
                     obj.rate_code = order.tax_lines[0].rate_code;
                     obj.tax_rate_label = order.tax_lines[0].label;
                 }
-              
+
 
             }
 
@@ -275,7 +275,7 @@ namespace eCommerceApi.Helpers.Database
 
             if (order.billing != null)
             {
-                
+
                 obj.first_name = order.billing.first_name;
                 obj.last_name = order.billing.last_name;
                 obj.company = order.billing.company;
@@ -321,7 +321,7 @@ namespace eCommerceApi.Helpers.Database
                     details.Add(i);
 
                 }
-               
+
                 obj.Detail = details;
 
             }
@@ -336,7 +336,7 @@ namespace eCommerceApi.Helpers.Database
 
 
 
-            
+
         }
 
 
@@ -347,7 +347,7 @@ namespace eCommerceApi.Helpers.Database
 
             if (category != null)
             {
-               
+
                 var cat = new WooCommerceNET.WooCommerce.v3.ProductCategory();
                 cat.id = category.categoryRef;
                 cat.name = category.name;
@@ -357,7 +357,7 @@ namespace eCommerceApi.Helpers.Database
 
                 //if (category.parent > 0)
                 //{
-                   
+
                 //    var parent = AppConfig.Instance().TempCategories.Single(t => t.parent == category.parent);
                 //    if(parent != null)
                 //    {
@@ -366,7 +366,7 @@ namespace eCommerceApi.Helpers.Database
                 //            cat.parent = parent.categoryRef;
                 //        }
                 //    }
-                   
+
                 //}
 
                 return cat;
@@ -384,14 +384,14 @@ namespace eCommerceApi.Helpers.Database
 
                 var db = AppConfig.Instance().Db;
                 var category = db.ProductCategories.GetById(product.categoryId);
-             
+
                 var p = new WooCommerceNET.WooCommerce.v3.Product();
                 p.id = product.productRef;
-                p.name = product.description;                
+                p.name = product.description;
                 p.description = product.description;
                 p.short_description = product.shortdescrip;
                 p.sku = product.sku;
-                if(category != null)
+                if (category != null)
                 {
                     p.categories = new List<WooCommerceNET.WooCommerce.v3.ProductCategoryLine>()
                 {
@@ -403,7 +403,7 @@ namespace eCommerceApi.Helpers.Database
                     }
                 };
                 }
-               
+
                 p.price = product.price;
                 p.regular_price = product.regular_price;
                 p.sale_price = product.sale_price;
@@ -443,7 +443,7 @@ namespace eCommerceApi.Helpers.Database
 
 
                 return p;
-           
+
 
             }
             return null;
@@ -453,7 +453,7 @@ namespace eCommerceApi.Helpers.Database
 
         public static WooCommerceNET.WooCommerce.v3.Customer GetECustomer(eCommerceApi.Model.Customers customer)
         {
-            if(customer!= null)
+            if (customer != null)
             {
                 WooCommerceNET.WooCommerce.v3.Customer cust = new WooCommerceNET.WooCommerce.v3.Customer();
                 cust.id = Convert.ToInt32(customer.customerRef);
@@ -464,7 +464,7 @@ namespace eCommerceApi.Helpers.Database
                 cust.is_paying_customer = true;
                 cust.date_modified = DateTime.Now;
                 cust.date_created = DateTime.Now;
-               
+
                 cust.billing = new WooCommerceNET.WooCommerce.v3.CustomerBilling()
                 {
                     address_1 = customer.address1,
@@ -475,15 +475,15 @@ namespace eCommerceApi.Helpers.Database
                     company = customer.company,
                     postcode = customer.postcode,
                     phone = customer.phone,
-                    first_name  = customer.customer_name
+                    first_name = customer.customer_name
                 };
                 cust.email = customer.email;
                 cust.role = customer.role;
 
                 return cust;
 
-                
-                
+
+
             }
             return null;
 
@@ -942,6 +942,83 @@ namespace eCommerceApi.Helpers.Database
             }
         }
 
+        public static void TransactionSyncLogBulkMerge(string connectionString, List<TransactionSyncLog> transLogs)
+        {
+            SqlConnection.ClearAllPools();
+            using (var oConn = new SqlConnection(connectionString))
+            {
+                oConn.Open();
+
+                var oCmd = new SqlCommand(@"MERGE TransactionSyncLog WITH(HOLDLOCK) as dest
+                                        USING (VALUES (
+                                             @Id,
+                                             @UserId,
+                                             @TableName,
+                                             @Operation,
+                                             @TransId,
+                                             @IsSynchronized,
+                                             @CreatedDate))
+                                            AS src 
+                                            (
+                                          Id,
+                                          UserId,
+                                          TableName,
+                                          Operation,
+                                          TransId,
+                                          IsSynchronized,
+                                          CreatedDate
+                                        
+                                            )
+                                            ON src.id = dest.id
+                                        WHEN MATCHED THEN
+                                            UPDATE SET 
+                                            [UserId]=src.UserId,
+	                                       [TableName]=src.TableName,
+                                           [Operation]=src.Operation,
+                                           [TransId]=src.TransId,                                     
+                                           [IsSynchronized]=src.IsSynchronized                                     
+                                            WHEN NOT MATCHED THEN
+                                            INSERT VALUES 	
+                                          (	    
+                                
+                                         src.[UserId],
+                                         src.[TableName],
+                                         src.[Operation],
+                                         src.[TransId],
+                                         src.[IsSynchronized],
+                                         src.[CreatedDate]);",
+                                                     oConn);
+
+                var Id = oCmd.CreateParameter(); Id.ParameterName = "@Id"; oCmd.Parameters.Add(Id);
+                var UserId = oCmd.CreateParameter(); UserId.ParameterName = "@UserId"; oCmd.Parameters.Add(UserId);
+                var TableName = oCmd.CreateParameter(); TableName.ParameterName = "@TableName"; oCmd.Parameters.Add(TableName);
+                var Operation = oCmd.CreateParameter(); Operation.ParameterName = "@Operation"; oCmd.Parameters.Add(Operation);
+                var TransId = oCmd.CreateParameter(); TransId.ParameterName = "@TransId"; oCmd.Parameters.Add(TransId);
+                var IsSynchronized = oCmd.CreateParameter(); IsSynchronized.ParameterName = "@IsSynchronized"; oCmd.Parameters.Add(IsSynchronized);
+                var CreatedDate = oCmd.CreateParameter(); CreatedDate.ParameterName = "@CreatedDate"; oCmd.Parameters.Add(CreatedDate);
+
+                foreach (var t in transLogs)
+                {
+                    Id.Value = t.Id;
+                    UserId.Value = t.UserId;
+                    TableName.Value = t.TableName;
+                    Operation.Value = t.Operation;
+                    TransId.Value = t.TransId;
+                    IsSynchronized.Value = t.IsSynchronized;
+                    CreatedDate.Value = t.CreatedDate;
+
+                    oCmd.ExecuteNonQuery();
+                }
+
+                oCmd.Dispose();
+
+                oConn.Close();
+                oConn.Dispose();
+            }
+        }
+
+
+
 
         public static void OrderBulkMerge(string connectionString, List<Orders> salesOrders)
         {
@@ -1267,19 +1344,19 @@ namespace eCommerceApi.Helpers.Database
                                                  src.[lastupdate]);",
                                                      oConn);
 
-                          var id = oCmd.CreateParameter(); id.ParameterName = "@id"; oCmd.Parameters.Add(id);
-                          var orderId = oCmd.CreateParameter(); orderId.ParameterName = "@orderId"; oCmd.Parameters.Add(orderId);
-                          var productId = oCmd.CreateParameter(); productId.ParameterName = "@productId"; oCmd.Parameters.Add(productId);
-                          var descrip = oCmd.CreateParameter(); descrip.ParameterName = "@descrip"; oCmd.Parameters.Add(descrip);
-                          var quantity = oCmd.CreateParameter(); quantity.ParameterName = "@quantity"; oCmd.Parameters.Add(quantity);
-                          var price = oCmd.CreateParameter(); price.ParameterName = "@price"; oCmd.Parameters.Add(price);
-                          var subtotal = oCmd.CreateParameter(); subtotal.ParameterName = "@subtotal"; oCmd.Parameters.Add(subtotal);
-                          var tax_class = oCmd.CreateParameter(); tax_class.ParameterName = "@tax_class"; oCmd.Parameters.Add(tax_class);
-                          var subtotal_tax = oCmd.CreateParameter(); subtotal_tax.ParameterName = "@subtotal_tax"; oCmd.Parameters.Add(subtotal_tax);
-                          var total_tax = oCmd.CreateParameter(); total_tax.ParameterName = "@total_tax"; oCmd.Parameters.Add(total_tax);
-                          var total = oCmd.CreateParameter(); total.ParameterName = "@total"; oCmd.Parameters.Add(total);
-                          var created = oCmd.CreateParameter(); created.ParameterName = "@created"; oCmd.Parameters.Add(created);
-                          var lastupdate = oCmd.CreateParameter(); lastupdate.ParameterName = "@lastupdate"; oCmd.Parameters.Add(lastupdate);
+                var id = oCmd.CreateParameter(); id.ParameterName = "@id"; oCmd.Parameters.Add(id);
+                var orderId = oCmd.CreateParameter(); orderId.ParameterName = "@orderId"; oCmd.Parameters.Add(orderId);
+                var productId = oCmd.CreateParameter(); productId.ParameterName = "@productId"; oCmd.Parameters.Add(productId);
+                var descrip = oCmd.CreateParameter(); descrip.ParameterName = "@descrip"; oCmd.Parameters.Add(descrip);
+                var quantity = oCmd.CreateParameter(); quantity.ParameterName = "@quantity"; oCmd.Parameters.Add(quantity);
+                var price = oCmd.CreateParameter(); price.ParameterName = "@price"; oCmd.Parameters.Add(price);
+                var subtotal = oCmd.CreateParameter(); subtotal.ParameterName = "@subtotal"; oCmd.Parameters.Add(subtotal);
+                var tax_class = oCmd.CreateParameter(); tax_class.ParameterName = "@tax_class"; oCmd.Parameters.Add(tax_class);
+                var subtotal_tax = oCmd.CreateParameter(); subtotal_tax.ParameterName = "@subtotal_tax"; oCmd.Parameters.Add(subtotal_tax);
+                var total_tax = oCmd.CreateParameter(); total_tax.ParameterName = "@total_tax"; oCmd.Parameters.Add(total_tax);
+                var total = oCmd.CreateParameter(); total.ParameterName = "@total"; oCmd.Parameters.Add(total);
+                var created = oCmd.CreateParameter(); created.ParameterName = "@created"; oCmd.Parameters.Add(created);
+                var lastupdate = oCmd.CreateParameter(); lastupdate.ParameterName = "@lastupdate"; oCmd.Parameters.Add(lastupdate);
 
                 foreach (var item in orderDetails)
                 {

@@ -15,6 +15,8 @@ namespace eCommerceApi.Model
         public string TableName { get; set; }
         public string Operation { get; set; }
         public int TransId { get; set; }
+
+        public bool IsSynchronized { get; set; }
         public DateTime CreatedDate { get; set; }
     }
 }

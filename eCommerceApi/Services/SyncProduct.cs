@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WooCommerceNET;
+using WooCommerceNET.Base;
 using WooCommerceNET.WooCommerce.Legacy;
 using WooCommerceNET.WooCommerce.v3;
 using Product = WooCommerceNET.WooCommerce.v3.Product;
@@ -37,69 +38,120 @@ namespace eCommerceApi.Services
            
             var db = AppConfig.Instance().Db;
             _productLastUpdateSync = db.GetLastUpdateDate(100, "Products");
-            if (AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _productLastUpdateSync).Count() > 0)
+
+            //getting the changes
+            var syncRecords = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _productLastUpdateSync && x.IsSynchronized == false).Count();
+            var transIds = db.TransSyncLog.Get(t => t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).Select(t => t.TransId).ToList();
+           
+            if (syncRecords > 0)
             {
+                
 
+                var transInserted = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Insert" && t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).ToList();
+                var transUpdated = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Update" && t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).ToList();
 
-                var insertedRecords = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Insert" && t.CreatedDate > _productLastUpdateSync).Select(x => x.TransId);
-                var updatedRecords = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Update" && t.CreatedDate > _productLastUpdateSync).Select(x => x.TransId);
+                var insertedIds = transInserted.Select(x => x.TransId).ToList();
+                var updatedIds = transUpdated.Select(x => x.TransId).ToList();
 
 
                 //Getting sales orders and payments
-                var insertedProducts = db.Products.GetAll().Where(o => Sql.In(o.id, insertedRecords));
-                var updatedProducts = db.Products.GetAll().Where(o => Sql.In(o.id, updatedRecords));
+                var insertedProducts = db.Products.GetAll().Where(o => Sql.In(o.id, insertedIds));
+                var updatedProducts = db.Products.GetAll().Where(o => Sql.In(o.id, updatedIds));
 
 
-                ProductBatch productBatch = new ProductBatch();
+               
+                //ProductBatch productBatch = new ProductBatch();
+                var create = new List<Product>();
+                var update = new List<Product>();
 
+                
                 if (insertedProducts.Count() > 0)
                 {
-                    var create = new List<Product>();
+                   
                     foreach (var item in insertedProducts)
                     {
                         var i = DatabaseHelper.GetEProduct(item);
                         create.Add(i);
                     }
-                    productBatch.create = create;
+                    //productBatch.create = create;
                 }
 
                 if (updatedProducts.Count() > 0)
                 {
-                    var update = new List<Product>();
+                   
                     foreach (var item in updatedProducts)
                     {
                         var x = DatabaseHelper.GetEProduct(item);
                         update.Add(x);
                     }
-                    productBatch.update = update;
+                    //productBatch.update = update;
 
                 }
 
-                var response = await _wc.Product.UpdateRange(productBatch);
 
 
-                //updating sync table
-                if (response.create != productBatch.create)
+                //commiting changes to server
+                while (create.Count() > 0 || update.Count() > 0)
                 {
-                    db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Products");
+                    
+                    var i = create.Take(100).ToList();
+                    var u = update.Take(100).ToList();
+                    var r = await CommitingData(i, u);
 
-                    //updating product reference
-                    foreach (var i in response.create)
+                    if (create.Count > 100)
+                        create.RemoveRange(0, 100);
+                    else
+                        create.RemoveRange(0, create.Count);
+
+                    if (update.Count > 100)
+                        update.RemoveRange(0, 100);
+                    else
+                        update.RemoveRange(0, update.Count);
+
+                    //updating reference
+                    foreach (var item in r.create)
                     {
-                        var p = insertedProducts.SingleOrDefault(pro => pro.sku == i.sku);
+                        var p = insertedProducts.SingleOrDefault(pro => pro.sku == item.sku);
                         if (p != null)
-                            db.Products.Update(new Products() { productRef = Convert.ToInt32(i.id) }, product => product.id == p.id);
+                            db.Products.Update(new Products() { productRef = Convert.ToInt32(item.id) }, product => product.id == p.id);
                     }
+
+
                 }
+                //updating last sync
+                db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Products");
+
+       
+                var transLog = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _productLastUpdateSync && Sql.In(x.TransId, transIds )).ToList();
+                transLog.ForEach(t => { t.IsSynchronized = true; });
+                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, transLog);
 
 
-                if (response.update != productBatch.update)
-                    db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Products");
+
+
+
 
             }
 
 
         }
+
+
+        //this method will 
+        private async Task<BatchObject<Product>> CommitingData(List<Product> iProducts, List<Product> uProducts)
+        {
+            ProductBatch productBatch = new ProductBatch();
+
+            productBatch.create = iProducts;
+            productBatch.update = uProducts;
+
+
+            var response = await _wc.Product.UpdateRange(productBatch);
+
+            return response;
+
+        }
+       
 
     }
 }
