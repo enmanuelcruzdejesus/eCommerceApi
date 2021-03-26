@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
 using eCommerceApi.Helpers.Database;
+using eCommerceApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,12 +20,14 @@ namespace eCommerceApi.Controllers
     public class CustomerController : ControllerBase
     {
         RestAPI _restApi;
+        SyncCustomer _sync;
 
         private readonly ILogger<CustomerController> _logger;
 
         public CustomerController(ILogger<CustomerController> logger) {
             _logger = logger;
-            _restApi = AppConfig.Instance().Service;  
+            _restApi = AppConfig.Instance().Service;
+            _sync = new SyncCustomer(_restApi);
         
         }
 
@@ -77,6 +80,28 @@ namespace eCommerceApi.Controllers
 
                 return Ok(customers);
 
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+            }
+
+        }
+
+        [HttpPost("sync")]
+        public async Task<IActionResult> Sync()
+        {
+            try
+            {
+                var watch = new System.Diagnostics.Stopwatch();
+
+                watch.Start();
+                await _sync.Sync();
+
+                watch.Stop();
+                return Ok("Execution Time " + watch.ElapsedMilliseconds.ToString());
 
             }
             catch (Exception ex)

@@ -23,7 +23,7 @@ namespace eCommerceApi.Controllers
         WCObject _wc;
         Database _db;
         private readonly ILogger<ProductController> _logger;
-        SyncProduct _syncProduct;
+        SyncProduct _sync;
         public ProductController(ILogger<ProductController> logger) {
             _logger = logger;
             _restApi = AppConfig.Instance().Service;
@@ -31,7 +31,7 @@ namespace eCommerceApi.Controllers
 
             _wc = new WCObject(_restApi);
 
-            _syncProduct = new SyncProduct(_restApi);
+            _sync = new SyncProduct(_restApi);
         }
 
         [HttpPost("uploadAll")]
@@ -131,8 +131,13 @@ namespace eCommerceApi.Controllers
         {
             try
             {
-                await _syncProduct.Sync();
-                return Ok();
+                var watch = new System.Diagnostics.Stopwatch();
+
+                watch.Start();
+                await _sync.Sync();
+
+                watch.Stop();
+                return Ok("Execution Time "+watch.ElapsedMilliseconds.ToString());
 
             }catch(Exception ex)
             {

@@ -41,8 +41,8 @@ namespace eCommerceApi.Services
 
             //getting the changes
             var syncRecords = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _productLastUpdateSync && x.IsSynchronized == false).Count();
-            var transIds = db.TransSyncLog.Get(t => t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).Select(t => t.TransId).ToList();
-           
+            var transactions = db.TransSyncLog.Get(t => t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).ToList();
+
             if (syncRecords > 0)
             {
                 
@@ -50,16 +50,16 @@ namespace eCommerceApi.Services
                 var transInserted = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Insert" && t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).ToList();
                 var transUpdated = db.TransSyncLog.Get(t => t.TableName == "Products" && t.Operation == "Update" && t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).ToList();
 
-                var insertedIds = transInserted.Select(x => x.TransId).ToList();
-                var updatedIds = transUpdated.Select(x => x.TransId).ToList();
+          
 
+                var insertedProducts = from i in db.Products.GetAll()
+                                       join inserted in transInserted on i.id equals inserted.TransId
+                                       select i;
 
-                //Getting sales orders and payments
-                var insertedProducts = db.Products.GetAll().Where(o => Sql.In(o.id, insertedIds));
-                var updatedProducts = db.Products.GetAll().Where(o => Sql.In(o.id, updatedIds));
+                var updatedProducts = from i in db.Products.GetAll()
+                                       join updated in transUpdated on i.id equals updated.TransId
+                                       select i;
 
-
-               
                 //ProductBatch productBatch = new ProductBatch();
                 var create = new List<Product>();
                 var update = new List<Product>();
@@ -122,9 +122,13 @@ namespace eCommerceApi.Services
                 db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Products");
 
        
-                var transLog = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _productLastUpdateSync && Sql.In(x.TransId, transIds )).ToList();
-                transLog.ForEach(t => { t.IsSynchronized = true; });
-                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, transLog);
+           
+                var t = (from x in AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _productLastUpdateSync)
+                         join x2 in transactions on x.TransId equals x2.TransId
+                         select x ).ToList();
+
+                t.ForEach(t => { t.IsSynchronized = true; });
+                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
 
 
 

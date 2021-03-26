@@ -6,6 +6,7 @@ using ApiCore;
 using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
+using eCommerceApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +24,7 @@ namespace eCommerceApi.Controllers
         RestAPI _restApi;
         WCObject _wc;
         Database _db;
+        SyncProductCategory _sync;
 
 
         private readonly ILogger<CategoryController> _logger;
@@ -35,6 +37,8 @@ namespace eCommerceApi.Controllers
             _db = AppConfig.Instance().Db;
 
             _wc = new WCObject(_restApi);
+
+            _sync = new SyncProductCategory(_restApi);
         }
 
 
@@ -127,6 +131,29 @@ namespace eCommerceApi.Controllers
                 return Ok(categories);
 
 
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+            }
+
+        }
+
+
+
+        [HttpPost("sync")]
+        public async Task<IActionResult> Sync()
+        {
+            try
+            {
+                var watch = new System.Diagnostics.Stopwatch();
+
+                watch.Start();
+                await _sync.Sync();
+
+                watch.Stop();
+                return Ok("Execution Time " + watch.ElapsedMilliseconds.ToString());
             }
             catch (Exception ex)
             {

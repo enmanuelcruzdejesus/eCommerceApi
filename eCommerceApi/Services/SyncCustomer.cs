@@ -32,7 +32,7 @@ namespace eCommerceApi.Services
             _customerLastUpdateSync = db.GetLastUpdateDate(100, "Customers");
             //getting the changes
             var syncRecords = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _customerLastUpdateSync && x.IsSynchronized == false).Count();
-            var transIds = db.TransSyncLog.Get(t => t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).Select(t => t.TransId).ToList();
+            var transactions = db.TransSyncLog.Get(t => t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
 
 
             if (syncRecords > 0)
@@ -46,8 +46,14 @@ namespace eCommerceApi.Services
 
 
                 //Getting sales orders and payments
-                var insertedCustomers = db.Customers.GetAll().Where(o => Sql.In(o.id, insertedIds));
-                var updatedCustomers = db.Customers.GetAll().Where(o => Sql.In(o.id, updatedIds));
+              
+                var insertedCustomers = from i in db.Customers.GetAll()
+                                       join inserted in transInserted on i.id equals inserted.TransId
+                                       select i;
+
+                var updatedCustomers = from i in db.Customers.GetAll()
+                                      join updated in transUpdated on i.id equals updated.TransId
+                                      select i;
 
 
                 var create = new List<Customer>();
@@ -111,33 +117,13 @@ namespace eCommerceApi.Services
                 db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
 
 
-                var transLog = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _customerLastUpdateSync && Sql.In(x.TransId, transIds)).ToList();
-                transLog.ForEach(t => { t.IsSynchronized = true; });
-                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, transLog);
 
+                var t = (from x in AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _customerLastUpdateSync)
+                         join x2 in transactions on x.TransId equals x2.TransId
+                         select x).ToList();
 
-                //var response = await _wc.Customer.UpdateRange(customerBatch);
-                //if (response.create != customerBatch.create)
-                //{
-                //    //updating sync table
-                //    db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
-
-                //    foreach (var i in response.create)
-                //    {
-
-                //        var cust = insertedCustomers.SingleOrDefault(customer => customer.user_name == i.username);
-                //        if (cust != null)
-                //            db.Customers.Update(new Customers() { customerRef = Convert.ToString(i.id) }, c => c.id == cust.id);
-
-
-                //    }
-
-
-                //}
-
-                //if (response.update != customerBatch.update)
-                //    db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
-
+                t.ForEach(t => { t.IsSynchronized = true; });
+                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
 
 
 

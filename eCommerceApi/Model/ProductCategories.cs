@@ -23,7 +23,7 @@ namespace eCommerceApi.Model
         public int parent { get; set; }
         public string slug { get; set; }
 
-      
+    
 
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }

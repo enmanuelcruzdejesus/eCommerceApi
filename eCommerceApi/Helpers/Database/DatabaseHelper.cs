@@ -353,21 +353,21 @@ namespace eCommerceApi.Helpers.Database
                 cat.name = category.name;
                 cat.slug = category.slug;
                 cat.description = category.descrip;
-                cat.parent = category.parent;
+                //cat.parent = category.parent;
 
-                //if (category.parent > 0)
-                //{
+                if (category.parent > 0)
+                {
 
-                //    var parent = AppConfig.Instance().TempCategories.Single(t => t.parent == category.parent);
-                //    if(parent != null)
-                //    {
-                //        if(parent.categoryRef > 0)
-                //        {
-                //            cat.parent = parent.categoryRef;
-                //        }
-                //    }
+                    var parent = AppConfig.Instance().Db.ProductCategories.Get(p => p.id == category.parent).Single();
+                    if (parent != null)
+                    {
+                        if (parent.categoryRef > 0)
+                        {
+                            cat.parent = parent.categoryRef;
+                        }
+                    }
 
-                //}
+                }
 
                 return cat;
 

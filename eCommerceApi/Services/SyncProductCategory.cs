@@ -35,7 +35,7 @@ namespace eCommerceApi.Services
 
             //getting the changes
             var syncRecords = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _categoryLastUpdateSync && x.IsSynchronized == false).Count();
-            var transIds = db.TransSyncLog.Get(t => t.CreatedDate > _categoryLastUpdateSync && t.IsSynchronized == false).Select(t => t.TransId).ToList();
+            var transactions = db.TransSyncLog.Get(t => t.CreatedDate > _categoryLastUpdateSync && t.IsSynchronized == false).ToList();
 
 
 
@@ -44,12 +44,15 @@ namespace eCommerceApi.Services
                 var transInserted = db.TransSyncLog.Get(t => t.TableName == "ProductCategories" && t.Operation == "Insert" && t.CreatedDate > _categoryLastUpdateSync && t.IsSynchronized == false).ToList();
                 var transUpdated = db.TransSyncLog.Get(t => t.TableName == "ProductCategories" && t.Operation == "Update" && t.CreatedDate > _categoryLastUpdateSync && t.IsSynchronized == false).ToList();
 
-                var insertedIds = transInserted.Select(x => x.TransId).ToList();
-                var updatedIds = transUpdated.Select(x => x.TransId).ToList();
+             
+                var insertedCategories = from i in db.ProductCategories.GetAll()
+                                       join inserted in transInserted on i.id equals inserted.TransId
+                                       select i;
 
-                //Getting sales orders and payments
-                var insertedCategories = db.ProductCategories.GetAll().Where(o => Sql.In(o.id, insertedIds));
-                var updatedCategories = db.ProductCategories.GetAll().Where(o => Sql.In(o.id, updatedIds));
+                var updatedCategories = from i in db.ProductCategories.GetAll()
+                                      join updated in transUpdated on i.id equals updated.TransId
+                                      select i;
+
 
 
 
@@ -89,6 +92,9 @@ namespace eCommerceApi.Services
 
                     var i = create.Take(100).ToList();
                     var u = update.Take(100).ToList();
+                    
+
+
                     var r = await CommitingData(i, u);
 
                     if (create.Count > 100)
@@ -114,42 +120,16 @@ namespace eCommerceApi.Services
                 //updating last sync
                 db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductCategories");
 
-                var transLog = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate >  _categoryLastUpdateSync && Sql.In(x.TransId, transIds)).ToList();
-                transLog.ForEach(t => { t.IsSynchronized = true; });
-                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, transLog);
+                var t = (from x in AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _categoryLastUpdateSync)
+                         join x2 in transactions on x.TransId equals x2.TransId
+                         select x).ToList();
+
+                t.ForEach(t => { t.IsSynchronized = true; });
+                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
 
 
 
-                //var response = await _wc.Category.UpdateRange(categoryBatch);
-                //if (response.create != categoryBatch.create)
-                //{
-                //    //updating sync table
-                //    db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductCategories");
-
-                //    //updating productRef
-
-                //    foreach (var i in response.create)
-                //    {
-
-                //        var category = insertedCategories.SingleOrDefault(cat => cat.descrip == i.description);
-                //        if (category != null)
-                //        {
-                //            db.ProductCategories.Update(new ProductCategories() { categoryRef = Convert.ToInt32(i.id) }, c => c.id == category.id);
-
-
-                //        }
-
-
-
-
-                //    }
-                //}
-
-                //if (response.update != categoryBatch.update)
-                //    //updating sync table
-                //    db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductCategories");
-
-
+              
 
 
 
