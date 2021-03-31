@@ -107,13 +107,18 @@ namespace eCommerceApi.Services
                     else
                         update.RemoveRange(0, update.Count);
 
-                    //updating reference
-                    foreach (var item in r.create)
+                    if (create.Count() > 0)
                     {
-                        var p = insertedCategories.SingleOrDefault(pro => pro.slug == item.slug);
-                        if (p != null)
-                            db.ProductCategories.Update(new ProductCategories() { categoryRef = Convert.ToInt32(item.id) }, product => product.id == p.id);
+                        //updating reference
+                        foreach (var item in r.create)
+                        {
+                            var p = insertedCategories.SingleOrDefault(pro => pro.slug == item.slug);
+                            if (p != null)
+                                db.ProductCategories.Update(new ProductCategories() { categoryRef = Convert.ToInt32(item.id) }, product => product.id == p.id);
+                        }
+
                     }
+
 
 
                 }

@@ -17,6 +17,7 @@ namespace eCommerceApi.Services
         SyncCustomer _syncCustomer;
         SyncProduct _syncProduct;
         SyncProductCategory _syncProductCategory;
+        SyncOrder _syncOrder;
 
 
         public SyncService()
@@ -26,6 +27,7 @@ namespace eCommerceApi.Services
             _syncCustomer = new SyncCustomer(_restApi);
             _syncProduct = new SyncProduct(_restApi);
             _syncProductCategory = new SyncProductCategory(_restApi);
+            _syncOrder = new SyncOrder(_restApi);
         }
 
 
@@ -34,9 +36,10 @@ namespace eCommerceApi.Services
             var task1 =  _syncCustomer.Sync();
             var task2 =  _syncProductCategory.Sync();
             var task3 = _syncProduct.Sync();
+            var task4 = _syncOrder.Sync();
 
 
-            await Task.WhenAll(task1, task2, task3);
+            await Task.WhenAll(task1, task2, task3, task4);
 
         }
     }

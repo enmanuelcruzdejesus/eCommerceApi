@@ -22,6 +22,8 @@ namespace eCommerceApi.Model
         public int parentId { get; set; }
         public string order_key { get; set; }
         public string order_number { get; set; }
+
+        public int sku { get; set; }
         public int customerId { get; set; }
         public string customer_notes { get; set; }
         public DateTime order_date { get; set; }

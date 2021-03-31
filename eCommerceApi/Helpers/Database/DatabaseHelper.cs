@@ -221,6 +221,132 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
+        public static WooCommerceNET.WooCommerce.v3.Order GetEOrderFromOrder(eCommerceApi.Model.Orders order)
+        {
+            var cust = AppConfig.Instance().Db.Customers.GetById(order.customerId);
+            var o = new WooCommerceNET.WooCommerce.v3.Order();
+            o.id = order.orderRef;
+            o.parent_id = order.parentId;
+            o.order_key = order.order_key;
+            o.number = order.order_number;
+            if (cust != null)
+                o.customer_id = Convert.ToInt32(cust.customerRef);
+            o.customer_note = order.customer_notes;
+            o.date_created = order.order_date;
+            o.date_created_gmt = order.date_created_gmt;
+            if (o.date_paid != null)
+                o.date_paid = order.date_paid;
+            else
+                o.date_paid = null;
+
+
+            if (o.date_completed != null)
+                o.date_completed = Convert.ToDateTime(order.date_completed);
+            else
+                o.date_completed = null;
+
+            o.currency = order.currency;
+            o.payment_method = order.payment_menthod;
+            o.payment_method_title = order.payment_menthod_title;
+            o.discount_total = Convert.ToDecimal(order.discount_total);
+            o.discount_tax = Convert.ToDecimal(order.discount_tax);
+            o.shipping_total = Convert.ToDecimal(order.shipping_total);
+            o.prices_include_tax = Convert.ToBoolean(order.prices_include_tax);
+            if (order.rateId > 0 )
+            {
+                o.tax_lines = new List<WooCommerceNET.WooCommerce.v2.OrderTaxLine>()
+                {
+                    new WooCommerceNET.WooCommerce.v2.OrderTaxLine()
+                    {
+                        rate_id =order.rateId.ToString(),
+                        rate_code = order.rate_code,
+                        shipping_tax_total = Convert.ToDecimal(order.tax_rate_label)
+
+
+                    }
+                };
+
+            }
+
+            o.shipping_tax = Convert.ToDecimal(order.shipping_tax);
+            o.total_tax = Convert.ToDecimal(order.total_tax);
+            o.discount_tax = Convert.ToDecimal(order.discount_tax);
+            o.total = Convert.ToDecimal(order.total);
+            o.total_tax = Convert.ToDecimal(order.total_tax);
+
+            
+            if (!string.IsNullOrEmpty(order.first_name))
+            {
+                o.billing = new WooCommerceNET.WooCommerce.v2.OrderBilling()
+                {
+                    first_name = order.first_name,
+                    last_name = order.last_name,
+                    company = order.company,
+                    address_1 = order.address1,
+                    address_2 = order.address2,
+                    country = order.country,
+                    city = order.city,
+                    state = order.state,
+                    postcode = order.postcode,
+                    email = order.email,
+                    phone = order.phone
+
+                };
+
+             
+            }
+            o.status = order.status;
+
+
+
+
+            //if (order.line_items != null && order.line_items.Count > 0)
+            //{
+            //    List<OrderDetails> details = new List<OrderDetails>();
+            //    foreach (var item in order.line_items)
+            //    {
+            //        OrderDetails i = new OrderDetails();
+
+            //        i.id = 0;
+            //        var product = GetProductByRef(Convert.ToInt32(item.product_id));
+            //        if (product != null)
+            //        {
+            //            i.productId = product.id;
+            //            i.descrip = product.description;
+
+            //        }
+
+            //        i.quantity = Convert.ToDecimal(item.quantity);
+            //        i.price = Convert.ToDecimal(item.price);
+            //        i.subtotal = Convert.ToDecimal(item.subtotal);
+            //        i.tax_class = item.tax_class;
+            //        i.subtotal_tax = Convert.ToDecimal(item.subtotal_tax);
+            //        i.total_tax = Convert.ToDecimal(item.total_tax);
+            //        i.total = Convert.ToDecimal(item.total);
+            //        i.created = DateTime.Now;
+            //        i.lastupdate = DateTime.Now;
+
+            //        details.Add(i);
+
+            //    }
+
+            //    obj.Detail = details;
+
+            //}
+
+
+
+
+            //o.created = DateTime.Now;
+            //o.lastupdate = DateTime.Now;
+
+            return o;
+
+
+
+
+        }
+
         public static eCommerceApi.Model.Orders GetOrderFromEOrder(WooCommerceNET.WooCommerce.v3.Order order)
         {
             var custId = GetCustomerByRef(Convert.ToInt32(order.customer_id)).id;
@@ -1034,6 +1160,7 @@ namespace eCommerceApi.Helpers.Database
                                               @parentId,
                                               @order_key,
                                               @order_number,
+                                              @sku,
                                               @customerId,
                                               @customer_notes,
                                               @order_date,
@@ -1074,6 +1201,7 @@ namespace eCommerceApi.Helpers.Database
                                              parentId,
                                              order_key,
                                              order_number,
+                                             sku,
                                              customerId,
                                              customer_notes,
                                              order_date,
@@ -1113,6 +1241,7 @@ namespace eCommerceApi.Helpers.Database
                                             UPDATE SET 
 	                                         [order_key]=src.order_key
                                             ,[order_number]=src.order_number
+                                            ,[sku]=src.sku
                                             ,[customerId]=src.customerId
                                             ,[customer_notes]=src.customer_notes
                                             ,[order_date]=src.order_date
@@ -1152,6 +1281,7 @@ namespace eCommerceApi.Helpers.Database
                                                       src.[parentId],
                                                       src.[order_key],
                                                       src.[order_number],
+                                                      src.[sku],
                                                       src.[customerId],
                                                       src.[customer_notes],
                                                       src.[order_date],
@@ -1192,6 +1322,7 @@ namespace eCommerceApi.Helpers.Database
                 var parentId = oCmd.CreateParameter(); parentId.ParameterName = "@parentId"; oCmd.Parameters.Add(parentId);
                 var order_key = oCmd.CreateParameter(); order_key.ParameterName = "@order_key"; oCmd.Parameters.Add(order_key);
                 var order_number = oCmd.CreateParameter(); order_number.ParameterName = "@order_number"; oCmd.Parameters.Add(order_number);
+                var sku = oCmd.CreateParameter(); sku.ParameterName = "@sku"; oCmd.Parameters.Add(sku);
                 var customerId = oCmd.CreateParameter(); customerId.ParameterName = "@customerId"; oCmd.Parameters.Add(customerId);
                 var customer_notes = oCmd.CreateParameter(); customer_notes.ParameterName = "@customer_notes"; oCmd.Parameters.Add(customer_notes);
                 var order_date = oCmd.CreateParameter(); order_date.ParameterName = "@order_date"; oCmd.Parameters.Add(order_date);
@@ -1233,6 +1364,7 @@ namespace eCommerceApi.Helpers.Database
                     parentId.Value = order.parentId;
                     order_key.Value = order.order_key;
                     order_number.Value = order.order_number;
+                    sku.Value = order.sku;
                     customerId.Value = order.customerId;
                     customer_notes.Value = GetDataValue(order.customer_notes);
                     order_date.Value = GetDataValue(order.order_date);

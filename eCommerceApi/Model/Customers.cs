@@ -15,6 +15,8 @@ namespace eCommerceApi.Model
         [AutoIncrement]
         public int id { get; set; }
         public string customerRef { get; set; }
+
+        public string sku { get; set; }
         public string user_name { get; set; }
 
         public string password { get; set; }

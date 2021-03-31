@@ -101,13 +101,19 @@ namespace eCommerceApi.Services
                     else
                         update.RemoveRange(0, update.Count);
 
-                    //updating reference
-                    foreach (var item in r.create)
+
+                    if (create.Count() > 0)
                     {
-                        var p = insertedCustomers.SingleOrDefault(pro => pro.user_name == item.username);
-                        if (p != null)
-                            db.Customers.Update(new Customers() { customerRef = item.id.ToString() }, c => c.id == p.id);
+                        //updating reference
+                        foreach (var item in r.create)
+                        {
+                            var p = insertedCustomers.SingleOrDefault(pro => pro.user_name == item.username);
+                            if (p != null)
+                                db.Customers.Update(new Customers() { customerRef = item.id.ToString() }, c => c.id == p.id);
+                        }
                     }
+
+                 
 
 
                 }
