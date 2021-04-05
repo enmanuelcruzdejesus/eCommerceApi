@@ -1515,6 +1515,46 @@ namespace eCommerceApi.Helpers.Database
             }
         }
 
+
+        public static void OrdersWithItemsBulkMerge(string connectionString, List<Orders> orders )
+        {
+
+            if (orders.Count() == 0) return;
+
+
+            OrderBulkMerge(connectionString,orders);
+
+            //initializing detail with order
+            var db = AppConfig.Instance().Db;
+
+            var affectedOrders = from x in db.Orders.GetAll()
+                                 join j in orders on x.orderRef equals j.orderRef
+                                 select x;
+
+
+            foreach (var item in affectedOrders)
+            {
+                var o = orders.Single(x => x.orderRef == item.orderRef);
+
+                item.Detail = o.Detail;
+            }
+
+
+            foreach (var order in affectedOrders)
+            {
+                var detail = order.Detail;
+                foreach (var item in detail)
+                {
+                    item.orderId = order.id;
+                }
+                ///Bulke Merge Detail
+                ///
+                OrderDetailBulkMerge(connectionString, detail);
+            }
+
+
+        }
+
         private static object GetDataValue(object value)
         {
             if (value == null)
