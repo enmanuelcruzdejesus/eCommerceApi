@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
+using ApiCore.Services;
 using eCommerceApi.Helpers.Database;
+using eCommerceApi.Model;
 using eCommerceApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -23,14 +25,35 @@ namespace eCommerceApi.Controllers
         SyncCustomer _sync;
 
         private readonly ILogger<CustomerController> _logger;
+        IRepository<Customers> _repository;
 
-        public CustomerController(ILogger<CustomerController> logger) {
+        public CustomerController(IRepository<Customers> repository,ILogger<CustomerController> logger) {
             _logger = logger;
             _restApi = AppConfig.Instance().Service;
-            _sync = new SyncCustomer(_restApi);
-        
+            //_sync = new SyncCustomer(_restApi);
+            _repository = repository;
+
+
         }
 
+        [HttpGet("getallwithrepo")]
+        public IActionResult GetWithRepo()
+        {
+            try
+            {
+
+
+                var customers = _repository.GetAll();
+                return Ok(customers);
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+
+            }
+        }
 
         [HttpGet("getall")]
         public IActionResult Get() 
@@ -75,7 +98,7 @@ namespace eCommerceApi.Controllers
 
 
                 //       db.Customers.BulkMerge(customers);
-                DatabaseHelper.CustomerBulkMerge(AppConfig.Instance().ConnectionString, customers);
+                DatabaseHelper.CustomersBulkMerge(AppConfig.Instance().ConnectionString, customers);
 
 
                 return Ok(customers);

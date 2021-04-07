@@ -33,7 +33,7 @@ namespace eCommerceApi.Controllers
 
             _wc = new WCObject(_restApi);
 
-            _sync = new SyncOrder(_restApi);
+            //_sync = new SyncOrder(_restApi);
 
         }
 

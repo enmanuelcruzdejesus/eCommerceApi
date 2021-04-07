@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ApiCore.Services;
 using eCommerceApi.Model;
 using eCommerceApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +20,8 @@ using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Quartz.Impl;
 using Quartz.Spi;
+using ServiceStack.Data;
+using ServiceStack.OrmLite;
 
 namespace eCommerceApi
 {
@@ -39,17 +43,42 @@ namespace eCommerceApi
                 options.JsonSerializerOptions.WriteIndented = true;
             });
 
-            //services.AddSingleton<IJobFactory, SingletonJobFactory>();
-            //services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            var builder = new ConfigurationBuilder()
+             .SetBasePath(Directory.GetCurrentDirectory())
+             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+
+            var conf = builder.Build();
+            var _connectionString = conf.GetConnectionString("DefaultConnection");
 
 
-            //services.AddSingleton<SyncJob>();
-            //services.AddSingleton(new JobSchedule(
-            //  jobType: typeof(SyncJob),
-            //  cronExpression: "0 0/4 * * * ?")); // run every 5 minutes
+            // singleton
+            var _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+            services.AddSingleton<IDbConnectionFactory>(_dbFactory);
 
 
-            //services.AddHostedService<QuartzHostedService>();
+            services.Add(new ServiceDescriptor(typeof(IRepository<Customers>), new ServiceStackRepository<Customers>(_dbFactory)));
+            services.Add(new ServiceDescriptor(typeof(IRepository<ProductCategories>), new ServiceStackRepository<ProductCategories>(_dbFactory)));
+            services.Add(new ServiceDescriptor(typeof(IRepository<Products>), new ServiceStackRepository<Products>(_dbFactory)));
+            services.Add(new ServiceDescriptor(typeof(IRepository<Orders>), new ServiceStackRepository<Orders>(_dbFactory)));
+            services.Add(new ServiceDescriptor(typeof(IRepository<TransactionSyncLog>), new ServiceStackRepository<TransactionSyncLog>(_dbFactory)));
+            services.Add(new ServiceDescriptor(typeof(IRepository<SyncTables>), new ServiceStackRepository<SyncTables>(_dbFactory)));
+
+
+
+
+
+            services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+
+
+            services.AddSingleton<SyncJob>();
+            services.AddSingleton(new JobSchedule(
+              jobType: typeof(SyncJob),
+              cronExpression: "0 0/1 * * * ?")); // run every 5 minutes
+
+
+            services.AddHostedService<QuartzHostedService>();
 
             services.AddApplicationInsightsTelemetry();
 

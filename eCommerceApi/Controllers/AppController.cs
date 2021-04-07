@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
+using ApiCore.Services;
 using eCommerceApi.Helpers.Database;
+using eCommerceApi.Model;
+using eCommerceApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -20,13 +23,39 @@ namespace eCommerceApi.Controllers
     public class AppController : ControllerBase
     {
         RestAPI _restApi;
+        WCObject _wc;
+        SyncService _syncService;
+       
+        IRepository<Customers> _customerRepo;
+        IRepository<ProductCategories> _categoryRepo;
+        IRepository<Products> _productRepo;
+        IRepository<Orders> _orderRepo;
+        IRepository<TransactionSyncLog> _transLogRepo;
+        IRepository<SyncTables> _syncRepo;
 
         private readonly ILogger<AppController> _logger;
 
-        public AppController(ILogger<AppController> logger) 
+        public AppController(IRepository<Customers> customerRepo,
+                           IRepository<ProductCategories> categoryRepo,
+                           IRepository<Products> productRepo,
+                           IRepository<Orders> orderRepo,
+                           IRepository<TransactionSyncLog> transLogRepo,
+                           IRepository<SyncTables> syncRepo, ILogger<AppController> logger) 
         {
             _logger = logger;
-            _restApi = AppConfig.Instance().Service; 
+            _restApi = AppConfig.Instance().Service;
+            _customerRepo = customerRepo;
+            _categoryRepo = categoryRepo;
+            _productRepo = productRepo;
+            _orderRepo = orderRepo;
+            _transLogRepo = transLogRepo;
+            _syncRepo = syncRepo;
+
+
+
+            _syncService = new SyncService(_customerRepo,categoryRepo,productRepo,orderRepo,transLogRepo,syncRepo);
+
+          
         }
 
 
@@ -78,8 +107,7 @@ namespace eCommerceApi.Controllers
 
                     }
 
-                  
-
+    
                     // Do something
 
 
@@ -97,6 +125,29 @@ namespace eCommerceApi.Controllers
                 return StatusCode(500, ex);
             }
 
+        }
+
+
+
+        [HttpPost("sync")]
+        public async Task<IActionResult> Sync()
+        {
+
+            try
+            {
+                var watch = new System.Diagnostics.Stopwatch();
+
+                watch.Start();
+                await  _syncService.Sync();
+                watch.Stop();
+                return Ok("Execution Time " + watch.ElapsedMilliseconds.ToString());
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.ToString());
+                return StatusCode(500, ex);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using ApiCore;
+using ApiCore.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
 using ServiceStack.OrmLite;
@@ -19,27 +20,38 @@ namespace eCommerceApi.Services
         WCObject _wc;
 
         DateTime _customerLastUpdateSync;
+        IRepository<Customers> _customerRepo;
+        IRepository<TransactionSyncLog> _transLogRepo;
+        IRepository<SyncTables> _syncRepo;
 
-        public SyncCustomer(RestAPI restAPI)
+
+        public SyncCustomer(IRepository<Customers> customerRepo, IRepository<TransactionSyncLog> transLogRepo, IRepository<SyncTables> syncRepo, RestAPI restAPI)
         {
             _restApi = restAPI;
             _wc = new WCObject(_restApi);
+            _customerRepo = customerRepo;
+            _transLogRepo = transLogRepo;
+            _syncRepo = syncRepo;
         }
 
-        public async Task Sync()
+        public async Task<long> Sync()
         {
+            var watch = new System.Diagnostics.Stopwatch();
+
+            watch.Start();
+
             var db = AppConfig.Instance().Db;
             _customerLastUpdateSync = db.GetLastUpdateDate(100, "Customers");
             //getting the changes
-            var syncRecords = AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _customerLastUpdateSync && x.IsSynchronized == false).Count();
-            var transactions = db.TransSyncLog.Get(t => t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
+            var syncRecords = _transLogRepo.Get(x => x.TableName =="Customers" &&  x.CreatedDate > _customerLastUpdateSync && x.IsSynchronized == false ).Count();
+            var transactions = _transLogRepo.Get(t => t.TableName == "Customers" &&  t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
 
 
             if (syncRecords > 0)
             {
 
-                var transInserted = db.TransSyncLog.Get(t => t.TableName == "Customers" && t.Operation == "Insert" && t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
-                var transUpdated = db.TransSyncLog.Get(t => t.TableName == "Customers" && t.Operation == "Update" && t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
+                var transInserted = _transLogRepo.Get(t => t.TableName == "Customers" && t.Operation == "Insert" && t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
+                var transUpdated = _transLogRepo.Get(t => t.TableName == "Customers" && t.Operation == "Update" && t.CreatedDate > _customerLastUpdateSync && t.IsSynchronized == false).ToList();
 
                 var insertedIds = transInserted.Select(x => x.TransId).ToList();
                 var updatedIds = transUpdated.Select(x => x.TransId).ToList();
@@ -47,11 +59,11 @@ namespace eCommerceApi.Services
 
                 //Getting sales orders and payments
               
-                var insertedCustomers = from i in db.Customers.GetAll()
+                var insertedCustomers = from i in _customerRepo.GetAll()
                                        join inserted in transInserted on i.id equals inserted.TransId
                                        select i;
 
-                var updatedCustomers = from i in db.Customers.GetAll()
+                var updatedCustomers = from i in _customerRepo.GetAll()
                                       join updated in transUpdated on i.id equals updated.TransId
                                       select i;
 
@@ -109,7 +121,7 @@ namespace eCommerceApi.Services
                         {
                             var p = insertedCustomers.SingleOrDefault(pro => pro.user_name == item.username);
                             if (p != null)
-                                db.Customers.Update(new Customers() { customerRef = item.id.ToString() }, c => c.id == p.id);
+                                _customerRepo.Update(new Customers() { customerRef = item.id.ToString() }, c => c.id == p.id);
                         }
                     }
 
@@ -120,11 +132,11 @@ namespace eCommerceApi.Services
 
 
                 //updating last sync
-                db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
+                _syncRepo.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Customers");
 
 
 
-                var t = (from x in AppConfig.Instance().Db.TransSyncLog.Get(x => x.CreatedDate > _customerLastUpdateSync)
+                var t = (from x in _transLogRepo.Get(x => x.CreatedDate > _customerLastUpdateSync)
                          join x2 in transactions on x.TransId equals x2.TransId
                          select x).ToList();
 
@@ -132,8 +144,14 @@ namespace eCommerceApi.Services
                 DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
 
 
+                watch.Stop();
+
+                return watch.ElapsedMilliseconds;
+
 
             }
+
+            return 0;
         }
 
 

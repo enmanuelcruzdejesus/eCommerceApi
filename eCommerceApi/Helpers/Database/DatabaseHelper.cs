@@ -300,46 +300,7 @@ namespace eCommerceApi.Helpers.Database
 
 
 
-            //if (order.line_items != null && order.line_items.Count > 0)
-            //{
-            //    List<OrderDetails> details = new List<OrderDetails>();
-            //    foreach (var item in order.line_items)
-            //    {
-            //        OrderDetails i = new OrderDetails();
-
-            //        i.id = 0;
-            //        var product = GetProductByRef(Convert.ToInt32(item.product_id));
-            //        if (product != null)
-            //        {
-            //            i.productId = product.id;
-            //            i.descrip = product.description;
-
-            //        }
-
-            //        i.quantity = Convert.ToDecimal(item.quantity);
-            //        i.price = Convert.ToDecimal(item.price);
-            //        i.subtotal = Convert.ToDecimal(item.subtotal);
-            //        i.tax_class = item.tax_class;
-            //        i.subtotal_tax = Convert.ToDecimal(item.subtotal_tax);
-            //        i.total_tax = Convert.ToDecimal(item.total_tax);
-            //        i.total = Convert.ToDecimal(item.total);
-            //        i.created = DateTime.Now;
-            //        i.lastupdate = DateTime.Now;
-
-            //        details.Add(i);
-
-            //    }
-
-            //    obj.Detail = details;
-
-            //}
-
-
-
-
-            //o.created = DateTime.Now;
-            //o.lastupdate = DateTime.Now;
-
+      
             return o;
 
 
@@ -617,7 +578,7 @@ namespace eCommerceApi.Helpers.Database
         }
 
 
-        public static void CustomerBulkMerge(string connectionString, List<Customers> customers)
+        public static void CustomersBulkMerge  (string connectionString, List<Customers> customers)
         {
             SqlConnection.ClearAllPools();
             using (var oConn = new SqlConnection(connectionString))
@@ -628,6 +589,7 @@ namespace eCommerceApi.Helpers.Database
                                         USING (VALUES (
                                          @id,
                                          @customerRef,
+                                         @sku,
                                          @user_name,
                                          @password,
                                          @customer_name,
@@ -648,6 +610,7 @@ namespace eCommerceApi.Helpers.Database
                                             (
                                            id,
                                            customerRef,
+                                           sku,
                                            user_name,
                                            password,
                                            customer_name,
@@ -668,7 +631,6 @@ namespace eCommerceApi.Helpers.Database
                                             ON src.id = dest.id
                                         WHEN MATCHED THEN
                                             UPDATE SET 
-	                                    [user_name]=src.user_name,
                                             [password]=src.password,
                                             [customer_name]=src.customer_name,
                                             [company]=src.company,
@@ -686,6 +648,7 @@ namespace eCommerceApi.Helpers.Database
                                             WHEN NOT MATCHED THEN
                                             INSERT VALUES (		                                                                                                                               
                                                        src.[customerRef],
+                                                       src.[sku],
                                                        src.[user_name],
                                                        src.[password],
                                                        src.[customer_name],
@@ -706,6 +669,7 @@ namespace eCommerceApi.Helpers.Database
 
                 var id = oCmd.CreateParameter(); id.ParameterName = "@id"; oCmd.Parameters.Add(id);
                 var customerRef = oCmd.CreateParameter(); customerRef.ParameterName = "@customerRef"; oCmd.Parameters.Add(customerRef);
+                var sku = oCmd.CreateParameter(); sku.ParameterName = "@sku"; oCmd.Parameters.Add(sku);
                 var user_name = oCmd.CreateParameter(); user_name.ParameterName = "@user_name"; oCmd.Parameters.Add(user_name);
                 var password = oCmd.CreateParameter(); password.ParameterName = "@password"; oCmd.Parameters.Add(password);
                 var customer_name = oCmd.CreateParameter(); customer_name.ParameterName = "@customer_name"; oCmd.Parameters.Add(customer_name);
@@ -727,6 +691,7 @@ namespace eCommerceApi.Helpers.Database
                 {
                     id.Value = c.id;
                     customerRef.Value = c.customerRef;
+                    sku.Value = GetDataValue(c.sku);
                     user_name.Value = GetDataValue(c.user_name);
                     password.Value = GetDataValue(c.password);
                     customer_name.Value = c.customer_name;
@@ -1524,12 +1489,11 @@ namespace eCommerceApi.Helpers.Database
 
             OrderBulkMerge(connectionString,orders);
 
-            //initializing detail with order
             var db = AppConfig.Instance().Db;
 
-            var affectedOrders = from x in db.Orders.GetAll()
+            var affectedOrders = (from x in db.Orders.GetAll()
                                  join j in orders on x.orderRef equals j.orderRef
-                                 select x;
+                                 select x).ToList();
 
 
             foreach (var item in affectedOrders)

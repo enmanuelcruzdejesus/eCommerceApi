@@ -1,4 +1,5 @@
 ﻿using ApiCore;
+using ApiCore.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
 using Microsoft.Extensions.Logging;
@@ -19,29 +20,44 @@ namespace eCommerceApi.Services
         RestAPI _restApi;
         WCObject _wc;
         SyncService _syncService;
-   
+
+        IRepository<Customers> _customerRepo;
+        IRepository<ProductCategories> _categoryRepo;
+        IRepository<Products> _productRepo;
+        IRepository<Orders> _orderRepo;
+        IRepository<TransactionSyncLog> _transLogRepo;
+        IRepository<SyncTables> _syncRepo;
+
         private readonly ILogger<SyncJob> _logger;
 
-        public SyncJob(ILogger<SyncJob> logger)
+        public SyncJob(IRepository<Customers> customerRepo,
+                           IRepository<ProductCategories> categoryRepo,
+                           IRepository<Products> productRepo,
+                           IRepository<Orders> orderRepo,
+                           IRepository<TransactionSyncLog> transLogRepo,
+                           IRepository<SyncTables> syncRepo,ILogger<SyncJob> logger)
         {
             _restApi = AppConfig.Instance().Service;
             _wc = new WCObject(_restApi);
 
-            _syncService = new SyncService();
-           
+            _customerRepo = customerRepo;
+            _categoryRepo = categoryRepo;
+            _productRepo = productRepo;
+            _orderRepo = orderRepo;
+            _transLogRepo = transLogRepo;
+            _syncRepo = syncRepo;
+
+
+
+            _syncService = new SyncService(_customerRepo, categoryRepo, productRepo, orderRepo, transLogRepo, syncRepo);
+
         }
 
 
-        public Task Execute(IJobExecutionContext context)
+        public async  Task Execute(IJobExecutionContext context)
         {
-            return Task.Run(async () =>
-            {
 
-                await _syncService.Sync();
-   
-
-            });
-
+            await _syncService.Sync();
 
 
         }

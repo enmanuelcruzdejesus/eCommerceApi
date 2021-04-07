@@ -38,7 +38,7 @@ namespace eCommerceApi.Controllers
 
             _wc = new WCObject(_restApi);
 
-            _sync = new SyncProductCategory(_restApi);
+            //_sync = new SyncProductCategory(_restApi);
         }
 
 

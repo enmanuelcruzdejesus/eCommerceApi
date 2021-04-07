@@ -31,7 +31,7 @@ namespace eCommerceApi.Controllers
 
             _wc = new WCObject(_restApi);
 
-            _sync = new SyncProduct(_restApi);
+            //_sync = new SyncProduct(_restApi);
         }
 
         [HttpPost("uploadAll")]
