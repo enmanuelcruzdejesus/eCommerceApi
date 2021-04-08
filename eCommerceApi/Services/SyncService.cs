@@ -93,6 +93,10 @@ namespace eCommerceApi.Services
             var productTransactions = _transLogRepo.Get(t => t.TableName == "Products" && t.CreatedDate > _productLastUpdateSync && t.IsSynchronized == false).ToList();
             var syncProductRecords = productTransactions.Count();
 
+
+            var orderTransactions = _transLogRepo.Get(t => t.TableName == "Orders" && t.CreatedDate > _orderLastUpdateSync && t.IsSynchronized == false).ToList();
+            var syncOrderRecords = orderTransactions.Count();
+
             if (syncCustomerRecords > 0)
             {
 
@@ -160,7 +164,7 @@ namespace eCommerceApi.Services
                         update.RemoveRange(0, update.Count);
 
 
-                    if (create.Count() > 0)
+                    if (insertedCustomers.Count() > 0)
                     {
                         //updating reference
                         foreach (var item in r.create)
@@ -369,7 +373,7 @@ namespace eCommerceApi.Services
                         update.RemoveRange(0, update.Count);
 
 
-                    if (create.Count() > 0)
+                    if (insertedProducts.Count() > 0)
                     {
                         //updating reference
                         foreach (var item in r.create)
@@ -405,6 +409,108 @@ namespace eCommerceApi.Services
             }
 
 
+
+            if (syncOrderRecords > 0)
+            {
+
+                //var transInserted = _transLogRepo.Get(t => t.TableName == "Orders" && t.Operation == "Insert" && t.CreatedDate > _orderLastUpdateSync && t.IsSynchronized == false).ToList();
+                var transUpdated = _transLogRepo.Get(t => t.TableName == "Orders" && t.Operation == "Update" && t.CreatedDate > _orderLastUpdateSync && t.IsSynchronized == false).ToList();
+
+                //var insertedIds = transInserted.Select(x => x.TransId).ToList();
+                var updatedIds = transUpdated.Select(x => x.TransId).ToList();
+
+
+                //Getting sales orders and payments
+
+                //var insertedOrders = from i in _orderRepo.GetAll()
+                //                       join inserted in transInserted on i.id equals inserted.TransId
+                //                       select i;
+
+                var updatedOrders = from i in _orderRepo.GetAll()
+                                      join updated in transUpdated on i.id equals updated.TransId
+                                      select i;
+
+
+                var create = new List<Order>();
+                var update = new List<Order>();
+
+
+                //if (insertedOrders.Count() > 0)
+                //{
+
+                //    foreach (var item in insertedOrders)
+                //    {
+                //        var i = DatabaseHelper.GetEOrderFromOrder(item);
+                //        create.Add(i);
+                //    }
+
+                //}
+
+                if (updatedOrders.Count() > 0)
+                {
+
+                    foreach (var item in updatedOrders)
+                    {
+                        var x = DatabaseHelper.GetEOrderFromOrder(item);
+                        update.Add(x);
+                    }
+
+
+                }
+
+                //commiting changes to server
+                while (create.Count() > 0 || update.Count() > 0)
+                {
+
+                    var i = create.Take(100).ToList();
+                    var u = update.Take(100).ToList();
+                    var r = await SentOrderData(i, u);
+
+                    if (create.Count > 100)
+                        create.RemoveRange(0, 100);
+                    else
+                        create.RemoveRange(0, create.Count);
+
+                    if (update.Count > 100)
+                        update.RemoveRange(0, 100);
+                    else
+                        update.RemoveRange(0, update.Count);
+
+
+                    //if (insertedOrders.Count() > 0)
+                    //{
+                    //    //updating reference
+                    //    foreach (var item in r.create)
+                    //    {
+                    //        var p = insertedOrders.SingleOrDefault(pro => pro.orderRef == item.id);
+                    //        if (p != null)
+                    //            db.Orders.Update(new Orders() { orderRef = Convert.ToInt32(item.id) }, product => product.id == p.id);
+                    //    }
+                    //}
+
+
+
+
+                }
+
+
+                //updating last sync
+                _syncRepo.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "Orders");
+
+
+
+                var t = (from x in _transLogRepo.Get(x => x.CreatedDate > _orderLastUpdateSync)
+                         join x2 in orderTransactions on x.TransId equals x2.TransId
+                         select x).ToList();
+
+                t.ForEach(t => { t.IsSynchronized = true; });
+                DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
+
+
+
+
+
+            }
 
         }
 
@@ -454,7 +560,7 @@ namespace eCommerceApi.Services
         }
 
 
-        private async Task<BatchObject<Order>> SentProductData(List<Order> i, List<Order> u)
+        private async Task<BatchObject<Order>> SentOrderData(List<Order> i, List<Order> u)
         {
             OrderBatch batch = new OrderBatch();
 

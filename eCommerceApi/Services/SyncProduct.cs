@@ -121,7 +121,7 @@ namespace eCommerceApi.Services
                         update.RemoveRange(0, update.Count);
 
 
-                    if(create.Count() > 0)
+                    if(insertedProducts.Count() > 0)
                     {
                         //updating reference
                         foreach (var item in r.create)

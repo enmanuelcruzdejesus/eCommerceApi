@@ -22,6 +22,7 @@ using Quartz.Impl;
 using Quartz.Spi;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
+using WooCommerceNET;
 
 namespace eCommerceApi
 {
@@ -49,12 +50,17 @@ namespace eCommerceApi
 
             var conf = builder.Build();
             var _connectionString = conf.GetConnectionString("DefaultConnection");
+            var clientid = conf.GetSection("WooCommerceSettings").GetValue(typeof(string), "clientid").ToString();
+            var clientsecret = conf.GetSection("WooCommerceSettings").GetValue(typeof(string), "clientsecret").ToString();
+            var baseUrl = conf.GetSection("WooCommerceSettings").GetValue(typeof(string), "baseUrl").ToString();
 
 
             // singleton
             var _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+            var _restApi = new RestAPI(baseUrl, clientid, clientsecret);
 
             services.AddSingleton<IDbConnectionFactory>(_dbFactory);
+            services.AddSingleton<RestAPI>(_restApi);
 
 
             services.Add(new ServiceDescriptor(typeof(IRepository<Customers>), new ServiceStackRepository<Customers>(_dbFactory)));

@@ -1,4 +1,5 @@
 ﻿using ApiCore;
+using ApiCore.Services;
 using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
@@ -24,16 +25,28 @@ namespace eCommerceApi.Controllers
         Database _db;
         private readonly ILogger<OrderController> _logger;
         SyncOrder _sync;
+        IRepository<Orders> _orderRepo;
+        IRepository<TransactionSyncLog> _transLogRepo;
+        IRepository<SyncTables> _syncRepo;
 
-        public OrderController(ILogger<OrderController> logger)
+        public OrderController(IRepository<Orders> orderRepo,
+                               IRepository<TransactionSyncLog> transLogRepo,
+                                IRepository<SyncTables> syncRepo,
+                                RestAPI restApi,
+                               ILogger<OrderController> logger)
         {
             _logger = logger;
-            _restApi = AppConfig.Instance().Service;
+            _restApi = restApi;
+            _orderRepo = orderRepo;
+            _transLogRepo = transLogRepo;
+            _syncRepo = syncRepo;
+           
+
             _db = AppConfig.Instance().Db;
 
             _wc = new WCObject(_restApi);
 
-            //_sync = new SyncOrder(_restApi);
+            _sync = new SyncOrder(_orderRepo,_transLogRepo,_syncRepo,_restApi);
 
         }
 
@@ -126,9 +139,7 @@ namespace eCommerceApi.Controllers
 
                         DatabaseHelper.OrdersWithItemsBulkMerge(AppConfig.Instance().ConnectionString, dbOrders);
 
-                      
-
-
+             
                         return  Ok(leftOrders);
                     }
                 }
