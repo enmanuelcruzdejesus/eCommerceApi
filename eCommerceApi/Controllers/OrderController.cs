@@ -43,9 +43,7 @@ namespace eCommerceApi.Controllers
            
 
             _db = AppConfig.Instance().Db;
-
             _wc = new WCObject(_restApi);
-
             _sync = new SyncOrder(_orderRepo,_transLogRepo,_syncRepo,_restApi);
 
         }

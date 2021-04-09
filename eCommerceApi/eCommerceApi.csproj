@@ -21,6 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\eCommerce.Model\eCommerce.Model.csproj" />
     <ProjectReference Include="..\WooCommerceRestApi\WooCommerceRestApi.csproj" />
   </ItemGroup>
 
