@@ -29,8 +29,8 @@ namespace eCommerceApi.ServiceClient
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
+            this.btnSync = new System.Windows.Forms.Button();
+            this.btnDownload = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
@@ -41,28 +41,31 @@ namespace eCommerceApi.ServiceClient
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // button1
+            // btnSync
             // 
-            this.button1.Location = new System.Drawing.Point(12, 12);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(210, 32);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "Sync On Demand";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnSync.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSync.Location = new System.Drawing.Point(12, 12);
+            this.btnSync.Name = "btnSync";
+            this.btnSync.Size = new System.Drawing.Size(210, 32);
+            this.btnSync.TabIndex = 0;
+            this.btnSync.Text = "Sync On Demand";
+            this.btnSync.UseVisualStyleBackColor = true;
+            this.btnSync.Click += new System.EventHandler(this.btnSync_Click);
             // 
-            // button2
+            // btnDownload
             // 
-            this.button2.Location = new System.Drawing.Point(261, 12);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(210, 32);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "Download Unsynchronized Orders";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDownload.Location = new System.Drawing.Point(261, 12);
+            this.btnDownload.Name = "btnDownload";
+            this.btnDownload.Size = new System.Drawing.Size(210, 32);
+            this.btnDownload.TabIndex = 1;
+            this.btnDownload.Text = "Download Unsynchronized Orders";
+            this.btnDownload.UseVisualStyleBackColor = true;
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.button2);
-            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.btnDownload);
+            this.panel1.Controls.Add(this.btnSync);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.panel1.Location = new System.Drawing.Point(0, 261);
             this.panel1.Name = "panel1";
@@ -129,8 +132,8 @@ namespace eCommerceApi.ServiceClient
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.Button btnSync;
+        private System.Windows.Forms.Button btnDownload;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label1;
