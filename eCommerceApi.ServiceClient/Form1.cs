@@ -35,16 +35,43 @@ namespace eCommerceApi.ServiceClient
             Task.Run(async () => 
             {
                 var r = await _service.Sync();
+                 var content = await r.Content.ReadAsStringAsync();
                 if (r.IsSuccessStatusCode)
                 {
-                    var content = await r.Content.ReadAsStringAsync();
+                   
                     //var data = JsonConvert.DeserializeObject<string>(content);
-                    Console.WriteLine("Sync was executed succesfully {0}", content);
+
+                    this.logListView.Items.Add(string.Format("Sync was executed succesfully {0}", content));
+                   
+
+
 
                 }
                 else
                 {
-                    Console.WriteLine("Error!!");
+                    this.logListView.Items.Add(string.Format("Error: {0}", content)); 
+                }
+
+            });
+        }
+
+        private void btnDownload_Click(object sender, EventArgs e)
+        {
+            Task.Run(async () =>
+            {
+                var r = await _service.SyncOrders();
+                var content = await r.Content.ReadAsStringAsync();
+                if (r.IsSuccessStatusCode)
+                {
+                    
+                    //var data = JsonConvert.DeserializeObject<string>(content);
+                    this.logListView.Items.Add(string.Format("Sync was executed succesfully {0}", content));
+
+
+                }
+                else
+                {
+                    this.logListView.Items.Add(string.Format("Error: {0}", content));
                 }
 
             });

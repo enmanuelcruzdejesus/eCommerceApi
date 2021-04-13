@@ -35,7 +35,7 @@ namespace eCommerceApi.ServiceClient
             this.panel2 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.logListView = new System.Windows.Forms.ListBox();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -61,6 +61,7 @@ namespace eCommerceApi.ServiceClient
             this.btnDownload.TabIndex = 1;
             this.btnDownload.Text = "Download Unsynchronized Orders";
             this.btnDownload.UseVisualStyleBackColor = true;
+            this.btnDownload.Click += new System.EventHandler(this.btnDownload_Click);
             // 
             // panel1
             // 
@@ -93,7 +94,7 @@ namespace eCommerceApi.ServiceClient
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.listBox1);
+            this.groupBox1.Controls.Add(this.logListView);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 53);
             this.groupBox1.Name = "groupBox1";
@@ -102,15 +103,15 @@ namespace eCommerceApi.ServiceClient
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Logs";
             // 
-            // listBox1
+            // logListView
             // 
-            this.listBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 15;
-            this.listBox1.Location = new System.Drawing.Point(3, 19);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(473, 186);
-            this.listBox1.TabIndex = 0;
+            this.logListView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.logListView.FormattingEnabled = true;
+            this.logListView.ItemHeight = 15;
+            this.logListView.Location = new System.Drawing.Point(3, 19);
+            this.logListView.Name = "logListView";
+            this.logListView.Size = new System.Drawing.Size(473, 186);
+            this.logListView.TabIndex = 0;
             // 
             // Form1
             // 
@@ -138,7 +139,7 @@ namespace eCommerceApi.ServiceClient
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox logListView;
     }
 }
 
