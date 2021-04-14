@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 namespace eCommerceApi.ServiceClient
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
         RestApiService _service;
         string _authorizationToken = string.Empty;
@@ -21,7 +21,7 @@ namespace eCommerceApi.ServiceClient
         string _baseUrl = "http://localhost:50756/api/{0}/{1}";
       
 
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
 

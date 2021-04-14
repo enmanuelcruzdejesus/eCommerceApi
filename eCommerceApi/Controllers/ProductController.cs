@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
+using eCommerce.Model.Entities;
 using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
@@ -102,7 +103,7 @@ namespace eCommerceApi.Controllers
 
 
                 //adapting data
-                List<eCommerceApi.Model.Products> products = new List<Model.Products>();
+                List<Products> products = new List<Products>();
                 foreach (var item in eproducts)
                 {
                     var p = DatabaseHelper.GetProductFromEProduct(item);

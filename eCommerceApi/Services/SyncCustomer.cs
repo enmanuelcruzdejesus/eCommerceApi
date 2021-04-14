@@ -1,7 +1,8 @@
 ﻿using ApiCore;
 using ApiCore.Services;
+using eCommerce.Model.Entities;
 using eCommerceApi.Helpers.Database;
-using eCommerceApi.Model;
+
 using ServiceStack.OrmLite;
 using System;
 using System.Collections.Generic;

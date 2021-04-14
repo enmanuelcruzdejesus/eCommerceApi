@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ApiCore.Services;
+using eCommerce.Model.Entities;
 using eCommerceApi.Model;
 using eCommerceApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;

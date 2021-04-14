@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ApiCore;
 using ApiCore.Services;
 using eCommerceApi.Helpers.Database;
-using eCommerceApi.Model;
+using eCommerce.Model;
 using eCommerceApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using WooCommerceNET;
 using WooCommerceNET.WooCommerce.v3;
-
+using eCommerce.Model.Entities;
 
 namespace eCommerceApi.Controllers
 {
@@ -87,7 +87,7 @@ namespace eCommerceApi.Controllers
                             var order = DatabaseHelper.GetOrderFromEOrder(eOrder);
 
                             var db = AppConfig.Instance().Db;
-                            var list = new List<eCommerceApi.Model.Orders>();
+                            var list = new List<Orders>();
                             list.Add(order);
                             //  db.Orders.BulkMerge(list);
                             DatabaseHelper.OrderBulkMerge(AppConfig.Instance().ConnectionString, list);

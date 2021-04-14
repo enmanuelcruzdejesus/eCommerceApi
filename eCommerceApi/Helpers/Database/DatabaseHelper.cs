@@ -1,7 +1,6 @@
 ﻿
 using ApiCore;
-using eCommerceApi.Model;
-using Quartz.Impl.Triggers;
+using eCommerce.Model.Entities;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -44,7 +43,7 @@ namespace eCommerceApi.Helpers.Database
         }
 
 
-        public static eCommerceApi.Model.Customers GetCustomerFromECustomer(WooCommerceNET.WooCommerce.v3.Customer customer)
+        public static Customers GetCustomerFromECustomer(WooCommerceNET.WooCommerce.v3.Customer customer)
         {
             var obj = new Customers();
             obj.customer_name = customer.first_name + " " + customer.last_name;
@@ -91,7 +90,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static eCommerceApi.Model.ProductCategories GetCategoryFromEProductCategory(WooCommerceNET.WooCommerce.v3.ProductCategory category)
+        public static ProductCategories GetCategoryFromEProductCategory(WooCommerceNET.WooCommerce.v3.ProductCategory category)
         {
             var obj = new ProductCategories();
             obj.name = category.name;
@@ -122,7 +121,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static eCommerceApi.Model.Products GetProductFromEProduct(WooCommerceNET.WooCommerce.v3.Product product)
+        public static Products GetProductFromEProduct(WooCommerceNET.WooCommerce.v3.Product product)
         {
             var obj = new Products();
             obj.description = product.name;
@@ -221,7 +220,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static WooCommerceNET.WooCommerce.v3.Order GetEOrderFromOrder(eCommerceApi.Model.Orders order)
+        public static WooCommerceNET.WooCommerce.v3.Order GetEOrderFromOrder(Orders order)
         {
             var cust = AppConfig.Instance().Db.Customers.GetById(order.customerId);
             var o = new WooCommerceNET.WooCommerce.v3.Order();
@@ -308,7 +307,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static eCommerceApi.Model.Orders GetOrderFromEOrder(WooCommerceNET.WooCommerce.v3.Order order)
+        public static Orders GetOrderFromEOrder(WooCommerceNET.WooCommerce.v3.Order order)
         {
             var custId = GetCustomerByRef(Convert.ToInt32(order.customer_id)).id;
 
@@ -429,7 +428,7 @@ namespace eCommerceApi.Helpers.Database
 
         //
 
-        public static WooCommerceNET.WooCommerce.v3.ProductCategory GetECategory(eCommerceApi.Model.ProductCategories category)
+        public static WooCommerceNET.WooCommerce.v3.ProductCategory GetECategory(ProductCategories category)
         {
 
             if (category != null)
@@ -463,7 +462,7 @@ namespace eCommerceApi.Helpers.Database
 
 
         }
-        public static WooCommerceNET.WooCommerce.v3.Product GetEProduct(eCommerceApi.Model.Products product)
+        public static WooCommerceNET.WooCommerce.v3.Product GetEProduct(Products product)
         {
 
             if (product != null)
@@ -538,7 +537,7 @@ namespace eCommerceApi.Helpers.Database
 
         }
 
-        public static WooCommerceNET.WooCommerce.v3.Customer GetECustomer(eCommerceApi.Model.Customers customer)
+        public static WooCommerceNET.WooCommerce.v3.Customer GetECustomer(Customers customer)
         {
             if (customer != null)
             {
@@ -566,6 +565,7 @@ namespace eCommerceApi.Helpers.Database
                 };
                 cust.email = customer.email;
                 cust.role = customer.role;
+                cust.is_paying_customer = customer.is_paying_customer;
 
                 return cust;
 

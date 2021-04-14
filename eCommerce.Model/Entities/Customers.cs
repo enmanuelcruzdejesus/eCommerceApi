@@ -30,6 +30,9 @@ namespace eCommerce.Model.Entities
         public string role { get; set; }
         public string email { get; set; }
         public string avatar_url { get; set; }
+
+        public bool is_paying_customer { get; set; }
+
         public DateTime created { get; set; }
         public DateTime lastupdate { get; set; }
 

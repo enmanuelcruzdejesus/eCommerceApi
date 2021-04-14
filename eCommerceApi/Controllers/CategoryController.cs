@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
+using eCommerce.Model.Entities;
 using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
-using eCommerceApi.Model;
+
 using eCommerceApi.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -116,7 +117,7 @@ namespace eCommerceApi.Controllers
 
 
                 //adapting data
-                List<eCommerceApi.Model.ProductCategories> categories = new List<Model.ProductCategories>();
+                List<ProductCategories> categories = new List<ProductCategories>();
                 foreach (var item in ecategories)
                 {
                     var cat = DatabaseHelper.GetCategoryFromEProductCategory(item);

@@ -1,4 +1,5 @@
 ﻿using ApiCore;
+using eCommerce.Model.Entities;
 using eCommerceApi.Model;
 using ServiceStack.OrmLite;
 using System;

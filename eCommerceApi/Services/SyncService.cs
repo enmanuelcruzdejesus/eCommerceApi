@@ -1,6 +1,6 @@
 ﻿using ApiCore;
 using ApiCore.Services;
-using eCommerceApi.Model;
+using eCommerce.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +10,7 @@ using WCObject = WooCommerceNET.WooCommerce.v3.WCObject;
 using WooCommerceNET.WooCommerce.v3;
 using eCommerceApi.Helpers.Database;
 using WooCommerceNET.Base;
+using eCommerce.Model.Entities;
 
 namespace eCommerceApi.Services
 {

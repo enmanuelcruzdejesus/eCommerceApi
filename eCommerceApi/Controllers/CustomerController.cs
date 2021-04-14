@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiCore;
 using ApiCore.Services;
+using eCommerce.Model.Entities;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
 using eCommerceApi.Services;
@@ -89,7 +90,7 @@ namespace eCommerceApi.Controllers
 
 
                 //adapting data
-                List<eCommerceApi.Model.Customers> customers = new List<Model.Customers>();
+                List<Customers> customers = new List<Customers>();
                 foreach (var item in ecustomers)
                 {
                     var c = DatabaseHelper.GetCustomerFromECustomer(item);

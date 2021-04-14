@@ -8,8 +8,9 @@ using WCObject = WooCommerceNET.WooCommerce.v3.WCObject;
 using WooCommerceNET.WooCommerce.v3;
 using ApiCore;
 using eCommerceApi.Helpers.Database;
-using eCommerceApi.Model;
+
 using ApiCore.Services;
+using eCommerce.Model.Entities;
 
 namespace eCommerceApi.Services
 {

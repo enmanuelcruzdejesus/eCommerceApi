@@ -1,5 +1,6 @@
 ﻿using ApiCore;
 using ApiCore.Services;
+using eCommerce.Model.Entities;
 using eCommerceApi.DAL.Services;
 using eCommerceApi.Helpers.Database;
 using eCommerceApi.Model;
@@ -74,7 +75,7 @@ namespace eCommerceApi.Controllers
                     if(db.Orders.Get(o => o.orderRef == order.id).Count() > 0)
                     {
                         var o = DatabaseHelper.GetOrderFromEOrder(order);
-                        DatabaseHelper.OrderBulkMerge(AppConfig.Instance().ConnectionString, new List<Model.Orders>() { o });
+                        DatabaseHelper.OrderBulkMerge(AppConfig.Instance().ConnectionString, new List<Orders>() { o });
 
                     }
 

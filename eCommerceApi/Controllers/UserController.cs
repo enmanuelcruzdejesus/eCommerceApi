@@ -1,4 +1,5 @@
-﻿using eCommerceApi.Model;
+﻿using eCommerce.Model.Entities;
+using eCommerceApi.Model;
 using eCommerceApi.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

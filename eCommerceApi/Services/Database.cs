@@ -1,5 +1,5 @@
 ﻿using ApiCore.Services;
-using eCommerceApi.Model;
+using eCommerce.Model.Entities;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using System;
