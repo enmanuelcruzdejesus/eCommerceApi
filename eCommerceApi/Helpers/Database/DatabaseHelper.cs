@@ -377,6 +377,11 @@ namespace eCommerceApi.Helpers.Database
             }
             obj.status = order.status;
 
+            if(order.shipping_lines != null && order.shipping_lines.Count > 0)
+            {
+                var sh = order.shipping_lines[0];
+                obj.shipping_method = sh.method_title;
+            }
 
             if (order.line_items != null && order.line_items.Count > 0)
             {
@@ -1136,6 +1141,7 @@ namespace eCommerceApi.Helpers.Database
                                               @payment_menthod,
                                               @payment_menthod_title,
                                               @discount_total,
+                                              @shipping_method,
                                               @shipping_total,
                                               @prices_include_tax,
                                               @rateId,
@@ -1177,6 +1183,7 @@ namespace eCommerceApi.Helpers.Database
                                              payment_menthod,
                                              payment_menthod_title,
                                              discount_total,
+                                             shipping_method,
                                              shipping_total,
                                              prices_include_tax,
                                              rateId,
@@ -1217,6 +1224,7 @@ namespace eCommerceApi.Helpers.Database
                                             ,[payment_menthod]=src.payment_menthod
                                             ,[payment_menthod_title]=src.payment_menthod_title
                                             ,[discount_total]=src.discount_total
+                                            ,[shipping_method]=src.shipping_method
                                             ,[shipping_total]=src.shipping_total
                                             ,[prices_include_tax]=src.prices_include_tax
                                             ,[rateId]=src.rateId
@@ -1257,6 +1265,7 @@ namespace eCommerceApi.Helpers.Database
                                                       src.[payment_menthod],
                                                       src.[payment_menthod_title],
                                                       src.[discount_total],
+                                                      src.[shipping_method],
                                                       src.[shipping_total],
                                                       src.[prices_include_tax],
                                                       src.[rateId],
@@ -1298,6 +1307,7 @@ namespace eCommerceApi.Helpers.Database
                 var payment_menthod = oCmd.CreateParameter(); payment_menthod.ParameterName = "@payment_menthod"; oCmd.Parameters.Add(payment_menthod);
                 var payment_menthod_title = oCmd.CreateParameter(); payment_menthod_title.ParameterName = "@payment_menthod_title"; oCmd.Parameters.Add(payment_menthod_title);
                 var discount_total = oCmd.CreateParameter(); discount_total.ParameterName = "@discount_total"; oCmd.Parameters.Add(discount_total);
+                var shipping_method = oCmd.CreateParameter(); shipping_method.ParameterName = "@shipping_method"; oCmd.Parameters.Add(shipping_method);
                 var shipping_total = oCmd.CreateParameter(); shipping_total.ParameterName = "@shipping_total"; oCmd.Parameters.Add(shipping_total);
                 var prices_include_tax = oCmd.CreateParameter(); prices_include_tax.ParameterName = "@prices_include_tax"; oCmd.Parameters.Add(prices_include_tax);
                 var rateId = oCmd.CreateParameter(); rateId.ParameterName = "@rateId"; oCmd.Parameters.Add(rateId);
@@ -1341,6 +1351,7 @@ namespace eCommerceApi.Helpers.Database
                     payment_menthod_title.Value = order.payment_menthod_title;
                     discount_total.Value = order.discount_total;
                     shipping_total.Value = GetDataValue(order.shipping_total);
+                    shipping_method.Value = order.shipping_method;
                     prices_include_tax.Value = GetDataValue(order.prices_include_tax);
                     rateId.Value = GetDataValue(order.rateId);
                     rate_code.Value = GetDataValue(order.rate_code);

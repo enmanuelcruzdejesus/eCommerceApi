@@ -29,6 +29,7 @@ namespace eCommerce.Model.Entities
         public string payment_menthod { get; set; }
         public string payment_menthod_title { get; set; }
         public decimal discount_total { get; set; }
+        public string  shipping_method { get; set; }
         public decimal shipping_total { get; set; }
         public bool prices_include_tax { get; set; }
         public int rateId { get; set; }
