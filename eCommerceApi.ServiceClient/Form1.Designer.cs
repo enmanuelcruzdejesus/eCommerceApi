@@ -107,6 +107,7 @@ namespace eCommerceApi.ServiceClient
             // 
             this.logListView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.logListView.FormattingEnabled = true;
+            this.logListView.HorizontalScrollbar = true;
             this.logListView.ItemHeight = 15;
             this.logListView.Location = new System.Drawing.Point(3, 19);
             this.logListView.Name = "logListView";

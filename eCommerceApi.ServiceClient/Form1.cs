@@ -41,7 +41,7 @@ namespace eCommerceApi.ServiceClient
                    
                     //var data = JsonConvert.DeserializeObject<string>(content);
 
-                    this.logListView.Items.Add(string.Format("Sync was executed succesfully {0}", content));
+                    this.logListView.Items.Add(string.Format("Sync was executed succesfully {0}\n", content));
                    
 
 
@@ -65,7 +65,7 @@ namespace eCommerceApi.ServiceClient
                 {
                     
                     //var data = JsonConvert.DeserializeObject<string>(content);
-                    this.logListView.Items.Add(string.Format("Sync was executed succesfully {0}", content));
+                    this.logListView.Items.Add(string.Format("Sync was executed succesfully {0}\n", content));
 
 
                 }
