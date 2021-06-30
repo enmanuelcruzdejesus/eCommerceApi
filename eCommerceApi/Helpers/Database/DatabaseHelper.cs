@@ -602,6 +602,37 @@ namespace eCommerceApi.Helpers.Database
             return v;
         }
 
+
+        public static WooCommerceNET.WooCommerce.v3.Variation GetEVariationFromProduct(Products p)
+        {
+            WooCommerceNET.WooCommerce.v3.Variation v = new WooCommerceNET.WooCommerce.v3.Variation();
+            var db = AppConfig.Instance().Db;
+
+
+            v.id = p.productRef;
+            v.description = p.description;
+            v.sku = p.sku;
+            v.price = p.price;
+            v.regular_price = p.regular_price;
+            v.sale_price = p.sale_price;
+            
+
+
+            var va = db.ProductVariations.Get(x => x.productidvariation == p.id).First();
+            var vt = new WooCommerceNET.WooCommerce.v3.VariationAttribute();
+            if (!string.IsNullOrEmpty(va.color))
+            {
+                v.attributes = new List<WooCommerceNET.WooCommerce.v3.VariationAttribute>();
+                vt.id = 1;
+                vt.name = "Color";
+                vt.option = va.color;
+                v.attributes.Add(vt);
+            }
+
+
+            return v;
+        }
+
         public static WooCommerceNET.WooCommerce.v3.Customer GetECustomer(Customers customer)
         {
             if (customer != null)

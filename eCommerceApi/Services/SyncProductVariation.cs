@@ -125,30 +125,30 @@ namespace eCommerceApi.Services
                 }
 
 
-                //    var parentUpdate = updatedProducts.Select(j => j.productid);
-                //    var childUpdateVariations = new List<ProductVariations>();
-                //    var hashUpdate = new Dictionary<int, List<Variation>>();
-                //    foreach (var i in parentUpdate)
-                //    {
-                //        var childs = (from x in updatedProducts
-                //                      where x.productid == i
-                //                      select x).ToList();
+                var parentUpdate = updatedProducts.Select(j => j.productid).Distinct();
+                var childUpdateVariations = new List<ProductVariations>();
+                var hashUpdate = new Dictionary<int, List<Variation>>();
+                foreach (var i in parentUpdate)
+                {
+                    var childs = (from x in updatedProducts
+                                  where x.productid == i
+                                  select x).ToList();
 
-                //        var pchild = (from j in db.Products.GetAll()
-                //                      join c in childs on j.id equals c.id
-                //                      select j).ToList();
+                    var pchild = (from j in db.Products.GetAll()
+                                  join c in childs on j.id equals c.id
+                                  select j).ToList();
 
-                //        var childVar = (from z in update.ToList()
-                //                        join cv in pchild on z.sku equals cv.sku
-                //                        select z).ToList();
+                    var childVar = (from z in update.ToList()
+                                    join cv in pchild on z.sku equals cv.sku
+                                    select z).ToList();
 
 
-                //        //looking for woocomerce product id
-                //        var wi = db.Products.GetById(i).productRef;
+                    //looking for woocomerce product id
+                    var wi = db.Products.GetById(i).productRef;
 
-                //        hashUpdate.Add(wi, childVar);
+                    hashUpdate.Add(wi, childVar);
 
-                //    }
+                }
 
 
 
@@ -160,6 +160,11 @@ namespace eCommerceApi.Services
                     var optionsC = db.ProductVariations.Get(o => o.productid == id).Select(x => x.color).ToList();
                     var r = await _wch.VariationBatch(item.Key, item.Value, null);
 
+                }
+
+                foreach (var item in hashUpdate)
+                {
+                    var r = await _wch.VariationBatch(item.Key, item.Value, null);
                 }
 
 

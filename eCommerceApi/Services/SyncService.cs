@@ -332,15 +332,62 @@ namespace eCommerceApi.Services
                 var updatedIds = transUpdated.Select(x => x.TransId).ToList();
 
 
-                //Getting sales orders and payments
+             
 
                 var insertedProducts = from i in _productRepo.GetAll()
                                          join inserted in transInserted on i.id equals inserted.TransId
+                                         where i.isChild == false
                                          select i;
 
                 var updatedProducts = from i in _productRepo.GetAll()
                                         join updated in transUpdated on i.id equals updated.TransId
-                                        select i;
+                                      where i.isChild == false
+                                      select i;
+
+
+                var updateProductVariations = (from i in _productRepo.GetAll()
+                                              join updated in transUpdated on i.id equals updated.TransId
+                                              where i.isChild == true
+                                              select i).ToList();
+
+
+                var parentUpdateVar = (from i in updateProductVariations
+                                       join p in _productVaritionsRepo.GetAll() on i.id equals p.productidvariation
+                                       select p).Select(x => x.productid).Distinct();
+
+                var childUpdateVariations = new List<ProductVariations>();
+                var listOfVars = new List<Variation>();
+                var hashUpdate = new Dictionary<int, List<Variation>>();
+                foreach (var item in parentUpdateVar)
+                {
+                    var childs = (from x in _productVaritionsRepo.GetAll()
+                                  join j in updateProductVariations on x.productidvariation  equals j.id
+                                  where x.productid == item
+                                  select x).ToList();
+
+
+
+                    var pchild = (from j in db.Products.GetAll()
+                                  join c in childs on j.id equals c.productidvariation
+                                  select j).ToList();
+
+                    foreach (var i in pchild)
+                    {
+
+                      
+                        listOfVars.Add(DatabaseHelper.GetEVariationFromProduct(i));
+
+                    }
+                    
+
+                    //looking for woocomerce product id
+                    var wi = db.Products.GetById(item).productRef;
+
+                    hashUpdate.Add(wi, listOfVars);
+                }
+
+
+
 
 
                 var create = new List<Product>();
@@ -371,12 +418,20 @@ namespace eCommerceApi.Services
                 }
 
                 //commiting changes to server
-                while (create.Count() > 0 || update.Count() > 0)
+                while (create.Count() > 0 || update.Count() > 0 || hashUpdate.Count()>0)
                 {
 
                     var i = create.Take(100).ToList();
                     var u = update.Take(100).ToList();
+                    var uv = hashUpdate.Take(100).ToList();
+
+
                     var r = await SentProductData(i, u);
+
+                    foreach (var item in uv)
+                    {
+                        var a = await _wch.VariationBatch(item.Key, null, item.Value);
+                    }
 
                     if (create.Count > 100)
                         create.RemoveRange(0, 100);
@@ -387,6 +442,16 @@ namespace eCommerceApi.Services
                         update.RemoveRange(0, 100);
                     else
                         update.RemoveRange(0, update.Count);
+
+
+                    //removing the first 100
+         
+                    foreach (var item in uv)
+                    {
+                        hashUpdate.Remove(item.Key);
+                    }
+
+                
 
 
                     if (insertedProducts.Count() > 0)
@@ -417,9 +482,6 @@ namespace eCommerceApi.Services
 
                 t.ForEach(t => { t.IsSynchronized = true; });
                 DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
-
-
-
 
 
             }

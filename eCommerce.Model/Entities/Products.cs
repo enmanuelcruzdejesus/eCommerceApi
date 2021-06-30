@@ -13,6 +13,9 @@ namespace eCommerce.Model.Entities
         public int productRef { get; set; }
 
         public string type { get; set; }
+
+        public bool isChild { get; set; }
+
         public string description { get; set; }
         public string shortdescrip { get; set; }
 

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ApiCore;
+using eCommerce.Model.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,45 +27,62 @@ namespace eCommerceApi.Helpers.eCommerce
             batch.create = i;
             batch.update = u;
 
+            var db = AppConfig.Instance().Db;
+
 
             var r = await _wc.Product.Variations.UpdateRange(id, batch);
 
-            var p = await _wc.Product.Get(Convert.ToInt32(id));
 
-            if(opts == null)
+
+            if (i != null && i.Count() > 0)
             {
-                opts = new List<string>();
-                foreach (var item in i)
+                var p = await _wc.Product.Get(Convert.ToInt32(id));
+
+                if (opts == null )
                 {
-                    opts.Add(item.attributes[0].option);
+                    opts = new List<string>();
+                    foreach (var item in i)
+                    {
+                        opts.Add(item.attributes[0].option);
+                    }
                 }
-            }
-           
 
-            if (p.attributes != null)
-            {
-                p.attributes.Add(new ProductAttributeLine()
+
+                if (p.attributes != null )
                 {
-                    id = 1,
-                    variation = true,
-                    visible = true,
-                    position = 0,
-                    name = "Color",
-                    options = opts
+                    p.attributes.Add(new ProductAttributeLine()
+                    {
+                        id = 1,
+                        variation = true,
+                        visible = true,
+                        position = 0,
+                        name = "Color",
+                        options = opts
 
-                });
+                    });
+                }
+
+                foreach (var item in r.create)
+                {
+                    p.variations.Add(Convert.ToInt32(item.id));
+                    //updating product reference
+
+                    var v = db.Products.Get(x => x.sku == item.sku).FirstOrDefault();
+                    db.Products.Update(new Products() { productRef = Convert.ToInt32(item.id) }, product => product.id == v.id);
+
+                }
+
+                var z = await wc.Product.Update(id, p);
+                return r.create;
+
             }
 
-            foreach (var item in r.create)
-            {
-                p.variations.Add(Convert.ToInt32(item.id));
-            }
+
+            return   r.update;
 
 
-
-            var z = await wc.Product.Update(id, p);
-            return r.create; 
         }
+
 
 
     }
