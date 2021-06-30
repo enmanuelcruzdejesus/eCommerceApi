@@ -11,6 +11,8 @@ namespace eCommerce.Model.Entities
         [AutoIncrement]
         public int id { get; set; }
         public int productRef { get; set; }
+
+        public string type { get; set; }
         public string description { get; set; }
         public string shortdescrip { get; set; }
 

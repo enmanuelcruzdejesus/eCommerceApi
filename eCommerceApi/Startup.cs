@@ -67,23 +67,25 @@ namespace eCommerceApi
             services.Add(new ServiceDescriptor(typeof(IRepository<Customers>), new ServiceStackRepository<Customers>(_dbFactory)));
             services.Add(new ServiceDescriptor(typeof(IRepository<ProductCategories>), new ServiceStackRepository<ProductCategories>(_dbFactory)));
             services.Add(new ServiceDescriptor(typeof(IRepository<Products>), new ServiceStackRepository<Products>(_dbFactory)));
+            services.Add(new ServiceDescriptor(typeof(IRepository<ProductVariations>), new ServiceStackRepository<ProductVariations>(_dbFactory)));
+
             services.Add(new ServiceDescriptor(typeof(IRepository<Orders>), new ServiceStackRepository<Orders>(_dbFactory)));
             services.Add(new ServiceDescriptor(typeof(IRepository<TransactionSyncLog>), new ServiceStackRepository<TransactionSyncLog>(_dbFactory)));
             services.Add(new ServiceDescriptor(typeof(IRepository<SyncTables>), new ServiceStackRepository<SyncTables>(_dbFactory)));
 
 
 
-            services.AddSingleton<IJobFactory, SingletonJobFactory>();
-            services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
+            //services.AddSingleton<IJobFactory, SingletonJobFactory>();
+            //services.AddSingleton<ISchedulerFactory, StdSchedulerFactory>();
 
 
-            services.AddSingleton<SyncJob>();
-            services.AddSingleton(new JobSchedule(
-              jobType: typeof(SyncJob),
-              cronExpression: "0 0/1 * * * ?")); // run every 5 minutes
+            //services.AddSingleton<SyncJob>();
+            //services.AddSingleton(new JobSchedule(
+            //  jobType: typeof(SyncJob),
+            //  cronExpression: "0 0/1 * * * ?")); // run every 5 minutes
 
 
-            services.AddHostedService<QuartzHostedService>();
+            //services.AddHostedService<QuartzHostedService>();
 
             services.AddApplicationInsightsTelemetry();
 

@@ -80,15 +80,25 @@ namespace eCommerceApi.Controllers
 
             try
             {
-                WCObject wc = new WCObject(_restApi);
+                //var p = new Dictionary<string, string>(){
+                // {"product_id", id.ToString()}};
+                //var r = await _restApi.GetRestful("products/" + product.id.ToString() + "/variations", null);
+                product.regular_price = 10;
+                product.price = 10;
+                product.sale_price = 10;
+                product.attributes.Add(new ProductAttributeLine()
+                {
+                    id = 0,
+                    name = "Color",
+                    options = new List<string>() { "Black" }
+                   
+                });
 
-                product.images.Add( new ProductImage() { });
+             
 
+                var r = await _restApi.SendHttpClientRequest("products/" + product.id.ToString() + "/variations", RequestMethod.POST, product, null);
 
-                //Get all products
-                var result = await wc.Product.Add(product);
-
-                return Ok(result);
+                return Ok(r);
 
             }
             catch (Exception ex)

@@ -29,6 +29,7 @@ namespace eCommerceApi.Controllers
         IRepository<Customers> _customerRepo;
         IRepository<ProductCategories> _categoryRepo;
         IRepository<Products> _productRepo;
+        IRepository<ProductVariations> _productVaritionsRepo;
         IRepository<Orders> _orderRepo;
         IRepository<TransactionSyncLog> _transLogRepo;
         IRepository<SyncTables> _syncRepo;
@@ -38,6 +39,8 @@ namespace eCommerceApi.Controllers
         public AppController(IRepository<Customers> customerRepo,
                            IRepository<ProductCategories> categoryRepo,
                            IRepository<Products> productRepo,
+                           IRepository<ProductVariations> productVarRepo,
+
                            IRepository<Orders> orderRepo,
                            IRepository<TransactionSyncLog> transLogRepo,
                            IRepository<SyncTables> syncRepo, ILogger<AppController> logger) 
@@ -50,10 +53,10 @@ namespace eCommerceApi.Controllers
             _orderRepo = orderRepo;
             _transLogRepo = transLogRepo;
             _syncRepo = syncRepo;
+            _productVaritionsRepo = productVarRepo;
 
 
-
-            _syncService = new SyncService(_customerRepo,categoryRepo,productRepo,orderRepo,transLogRepo,syncRepo);
+            _syncService = new SyncService(_customerRepo,categoryRepo,productRepo, _productVaritionsRepo, orderRepo,transLogRepo,syncRepo);
 
           
         }
@@ -66,7 +69,7 @@ namespace eCommerceApi.Controllers
         {
             try
             {
-                _logger.LogInformation("order webhook");
+                 _logger.LogInformation("order webhook");
 
                 //Get webhooks response payload
                 string jsonData = null;

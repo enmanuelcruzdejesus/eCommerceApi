@@ -12,6 +12,7 @@ namespace eCommerceApi.DAL.Services
         private IRepository<Customers> _Customers = null;
         private IRepository<ProductCategories> _ProductsCategories = null;
         private IRepository<Products> _Products = null;
+        private IRepository<ProductVariations> _ProductVariations = null;
         private IRepository<Orders> _salesOrders = null;
         private IRepository<OrderDetails> _salesOrderssDetails = null;
         private IRepository<SyncTables> _syncTables = null;
@@ -76,6 +77,17 @@ namespace eCommerceApi.DAL.Services
                 return _Products;
             }
 
+        }
+
+        public IRepository<ProductVariations> ProductVariations
+        {
+            get
+            {
+                if (_ProductVariations == null)
+                    _ProductVariations = new ServiceStackRepository<ProductVariations>(_dbFactory);
+
+                return _ProductVariations;
+            }
         }
       
         public IRepository<Orders> Orders

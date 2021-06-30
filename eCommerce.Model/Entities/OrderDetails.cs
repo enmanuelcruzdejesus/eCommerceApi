@@ -18,6 +18,9 @@ namespace eCommerce.Model.Entities
 
         public int orderId { get; set; }
         public int productId { get; set; }
+
+        public int variationId { get; set; }
+
         public string descrip { get; set; }
         public decimal quantity { get; set; }
         public decimal price { get; set; }

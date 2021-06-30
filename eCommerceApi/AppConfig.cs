@@ -32,6 +32,30 @@ namespace ApiCore
         private static string baseUrl;
 
 
+        public static string BaseUrl
+        {
+            get
+            {
+                return baseUrl;
+            }
+        }
+
+        public static string ClientId
+        {
+            get
+            {
+                return clientid;
+            }
+        }
+
+        public static string Secret
+        {
+            get
+            {
+                return Secret;
+            }
+        }
+
         //private static OAuth2Client _auth2Client = null;
 
         //public  OAuth2Client Auth2Client 

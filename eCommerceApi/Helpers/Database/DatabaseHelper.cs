@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using WooCommerceNET.WooCommerce.Legacy;
+
 
 namespace eCommerceApi.Helpers.Database
 {
@@ -392,12 +392,17 @@ namespace eCommerceApi.Helpers.Database
 
                     i.id = 0;
                     var product = GetProductByRef(Convert.ToInt32(item.product_id));
+                    var varation = GetProductByRef(Convert.ToInt32(item.variation_id));
                     if (product != null)
                     {
                         i.productId = product.id;
                         i.descrip = product.description;
 
                     }
+
+                    i.variationId = varation.id;
+                    i.descrip = item.name;
+                    
 
                     i.quantity = Convert.ToDecimal(item.quantity);
                     i.price = Convert.ToDecimal(item.price);
@@ -467,6 +472,8 @@ namespace eCommerceApi.Helpers.Database
 
 
         }
+
+
         public static WooCommerceNET.WooCommerce.v3.Product GetEProduct(Products product)
         {
 
@@ -478,6 +485,7 @@ namespace eCommerceApi.Helpers.Database
 
                 var p = new WooCommerceNET.WooCommerce.v3.Product();
                 p.id = product.productRef;
+                p.type = product.type;
                 p.name = product.description;
                 p.description = product.description;
                 p.short_description = product.shortdescrip;
@@ -540,6 +548,58 @@ namespace eCommerceApi.Helpers.Database
             return null;
 
 
+        }
+
+        public static WooCommerceNET.WooCommerce.v3.Product GetProductFromVariation(ProductVariations variation)
+        {
+            var db = AppConfig.Instance().Db;
+            var q = db.Products.GetById(variation.productidvariation);
+
+            return GetEProduct(q);
+
+        }
+        public static WooCommerceNET.WooCommerce.v3.Variation GetEVariation(ProductVariations variation)
+        {
+            WooCommerceNET.WooCommerce.v3.Variation v = new WooCommerceNET.WooCommerce.v3.Variation();
+            var x = GetProductFromVariation(variation);
+
+            if (x == null)
+                return null;
+
+            v.description = x.description;
+            v.sku = x.sku;
+            v.price = x.price;
+            v.regular_price = x.regular_price;
+            v.sale_price = x.sale_price;
+            //v.on_sale = x.on_sale;
+            //v.purchasable = x.purchasable;
+            //v.tax_class = x.tax_class;
+            //v.tax_status = x.tax_status;
+            //v.manage_stock = x.manage_stock;
+            //v.stock_quantity = x.stock_quantity;
+            //v.stock_status = x.stock_status;
+            //v.backorders_allowed = x.backorders_allowed;
+            //v.weight = x.weight;
+            //v.shipping_class = x.shipping_class;
+            //v.shipping_class_id = x.shipping_class_id;
+            //v.status = x.status;
+
+
+            var vt = new WooCommerceNET.WooCommerce.v3.VariationAttribute();
+            if (!string.IsNullOrEmpty(variation.color))
+            {
+                v.attributes = new List<WooCommerceNET.WooCommerce.v3.VariationAttribute>();
+                vt.id = 1;
+                vt.name = "Color";
+                vt.option = variation.color;
+                v.attributes.Add(vt);
+            }
+              
+
+
+
+
+            return v;
         }
 
         public static WooCommerceNET.WooCommerce.v3.Customer GetECustomer(Customers customer)
@@ -737,6 +797,7 @@ namespace eCommerceApi.Helpers.Database
                                         USING (VALUES (
                                           @id,
                                             @productRef,
+                                            @type,
                                             @description,
                                             @shortdescrip,
                                             @sku,
@@ -773,6 +834,7 @@ namespace eCommerceApi.Helpers.Database
                                             (
                                             id,
                                             productRef,
+                                            type,
                                             description,
                                             shortdescrip,
                                             sku,
@@ -810,6 +872,7 @@ namespace eCommerceApi.Helpers.Database
                                         WHEN MATCHED THEN
                                             UPDATE SET 
 	                                       [description]=src.description,
+                                            [type] = src.type,
                                             [shortdescrip]=src.shortdescrip,
                                             [sku]=src.sku,
                                             [categoryId]=src.categoryId,
@@ -843,6 +906,7 @@ namespace eCommerceApi.Helpers.Database
                                             WHEN NOT MATCHED THEN
                                             INSERT VALUES 	(	                                                                                     
                                                         src.[productRef],
+                                                        src.[type],
                                                         src.[description],
                                                         src.[shortdescrip],
                                                         src.[sku],
@@ -878,6 +942,7 @@ namespace eCommerceApi.Helpers.Database
                                                             oConn);
                 var id = oCmd.CreateParameter(); id.ParameterName = "@id"; oCmd.Parameters.Add(id);
                 var productRef = oCmd.CreateParameter(); productRef.ParameterName = "@productRef"; oCmd.Parameters.Add(productRef);
+                var type = oCmd.CreateParameter(); type.ParameterName = "@type"; oCmd.Parameters.Add(type);
                 var description = oCmd.CreateParameter(); description.ParameterName = "@description"; oCmd.Parameters.Add(description);
                 var shortdescrip = oCmd.CreateParameter(); shortdescrip.ParameterName = "@shortdescrip"; oCmd.Parameters.Add(shortdescrip);
                 var sku = oCmd.CreateParameter(); sku.ParameterName = "@sku"; oCmd.Parameters.Add(sku);
@@ -915,6 +980,7 @@ namespace eCommerceApi.Helpers.Database
                 {
                     id.Value = item.id;
                     productRef.Value = item.productRef;
+                    type.Value = item.type;
                     description.Value = item.description;
                     shortdescrip.Value = item.shortdescrip;
                     sku.Value = item.sku;
@@ -1397,6 +1463,7 @@ namespace eCommerceApi.Helpers.Database
                                             @id,
                                             @orderId,
                                             @productId,
+                                            @variationId,
                                             @descrip,
                                             @quantity,
                                             @price,
@@ -1412,6 +1479,7 @@ namespace eCommerceApi.Helpers.Database
                                             id,
                                             orderId,
                                             productId,
+                                            variationId,
                                             descrip,
                                             quantity,
                                             price,
@@ -1440,6 +1508,7 @@ namespace eCommerceApi.Helpers.Database
 		                                           (
                                                  src.[orderId],
                                                  src.[productId],
+                                                 src.[variationId],
                                                  src.[descrip],
                                                  src.[quantity],
                                                  src.[price],
@@ -1454,7 +1523,10 @@ namespace eCommerceApi.Helpers.Database
 
                 var id = oCmd.CreateParameter(); id.ParameterName = "@id"; oCmd.Parameters.Add(id);
                 var orderId = oCmd.CreateParameter(); orderId.ParameterName = "@orderId"; oCmd.Parameters.Add(orderId);
+
                 var productId = oCmd.CreateParameter(); productId.ParameterName = "@productId"; oCmd.Parameters.Add(productId);
+                var variationId = oCmd.CreateParameter(); variationId.ParameterName = "@variationId"; oCmd.Parameters.Add(variationId);
+
                 var descrip = oCmd.CreateParameter(); descrip.ParameterName = "@descrip"; oCmd.Parameters.Add(descrip);
                 var quantity = oCmd.CreateParameter(); quantity.ParameterName = "@quantity"; oCmd.Parameters.Add(quantity);
                 var price = oCmd.CreateParameter(); price.ParameterName = "@price"; oCmd.Parameters.Add(price);
@@ -1471,6 +1543,7 @@ namespace eCommerceApi.Helpers.Database
                     id.Value = item.id;
                     orderId.Value = item.orderId;
                     productId.Value = item.productId;
+                    variationId.Value = item.variationId;
                     descrip.Value = item.descrip;
                     quantity.Value = item.quantity;
                     price.Value = item.price;
