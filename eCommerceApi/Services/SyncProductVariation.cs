@@ -24,18 +24,21 @@ namespace eCommerceApi.Services
         IRepository<ProductVariations> _productVaritionsRepo;
         IRepository<TransactionSyncLog> _transLogRepo;
         IRepository<SyncTables> _syncRepo;
+        IRepository<Products> _productRepo;
 
         DateTime _productVariationLastUpdateSync;
+        DateTime _productLastUpdateSync;
 
-        public SyncProductVariation(IRepository<ProductVariations> productVaritionsRepo, IRepository<TransactionSyncLog> transLogRepo, IRepository<SyncTables> syncRepo, RestAPI restAPI)
+        public SyncProductVariation(IRepository<ProductVariations> productVaritionsRepo, IRepository<Products> productRepo, IRepository<TransactionSyncLog> transLogRepo, IRepository<SyncTables> syncRepo, RestAPI restAPI)
         {
             _restApi = restAPI;
             _wc = new WCObject(_restApi);
             _productVaritionsRepo = productVaritionsRepo;
             _transLogRepo = transLogRepo;
             _syncRepo = syncRepo;
+            _productRepo = productRepo;
 
-            _wch = new WooHelper(_restApi);
+            _wch = new WooHelper(_restApi,_productRepo);
 
         }
 
@@ -46,24 +49,29 @@ namespace eCommerceApi.Services
             watch.Start();
             var db = AppConfig.Instance().Db;
 
+
             _productVariationLastUpdateSync = db.GetLastUpdateDate(100, "ProductVariations");
-            var productVariationTransactions = _transLogRepo.Get(t => t.TableName == "ProductVariations" && t.CreatedDate > _productVariationLastUpdateSync && t.IsSynchronized == false).ToList();
+
+
+
+        
+            var productVariationTransactions = db.TransSyncLog.Get(t => t.TableName == "ProductVariations" && t.CreatedDate > _productVariationLastUpdateSync && t.IsSynchronized == false).ToList();
             var syncProductVariationsRecords = productVariationTransactions.Count();
 
 
             if (syncProductVariationsRecords > 0)
             {
 
-                var transInserted = _transLogRepo.Get(t => t.TableName == "ProductVariations" && t.Operation == "Insert" && t.CreatedDate > _productVariationLastUpdateSync && t.IsSynchronized == false).ToList();
-                var transUpdated = _transLogRepo.Get(t => t.TableName == "ProductVariations" && t.Operation == "Update" && t.CreatedDate > _productVariationLastUpdateSync && t.IsSynchronized == false).ToList();
+                var transInserted = db.TransSyncLog.Get(t => t.TableName == "ProductVariations" && t.Operation == "Insert" && t.CreatedDate > _productVariationLastUpdateSync && t.IsSynchronized == false).ToList();
+                var transUpdated = db.TransSyncLog.Get(t => t.TableName == "ProductVariations" && t.Operation == "Update" && t.CreatedDate > _productVariationLastUpdateSync && t.IsSynchronized == false).ToList();
 
 
 
-                var insertedProducts = from i in _productVaritionsRepo.GetAll()
+                var insertedProducts = from i in db.ProductVariations.GetAll()
                                        join inserted in transInserted on i.id equals inserted.TransId
                                        select i;
 
-                var updatedProducts = from i in _productVaritionsRepo.GetAll()
+                var updatedProducts = from i in db.ProductVariations.GetAll()
                                       join updated in transUpdated on i.id equals updated.TransId
                                       select i;
 
@@ -152,13 +160,14 @@ namespace eCommerceApi.Services
 
 
 
-
+                var resultInsert = new List<Variation>();
                 foreach (var item in hashInsert)
                 {
                    
                     var id = db.Products.Get(o => o.productRef == item.Key).FirstOrDefault().id;
                     var optionsC = db.ProductVariations.Get(o => o.productid == id).Select(x => x.color).ToList();
-                    var r = await _wch.VariationBatch(item.Key, item.Value, null);
+                    var r = await _wch.VariationBatch(item.Key, item.Value, null, optionsC);
+                    resultInsert.AddRange(r);
 
                 }
 
@@ -169,18 +178,35 @@ namespace eCommerceApi.Services
 
 
 
-                //updating last sync
-                _syncRepo.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductVariations");
+                //updating last sync of product variation
+                db.SyncTables.Update(new SyncTables() { UserId = 100, LastUpdateSync = DateTime.Now }, s => s.UserId == 100 && s.TableName == "ProductVariations");
 
-
-
-                var t = (from x in _transLogRepo.Get(x => x.CreatedDate > _productVariationLastUpdateSync)
+                var t = (from x in db.TransSyncLog.Get(x => x.CreatedDate > _productVariationLastUpdateSync)
                          join x2 in productVariationTransactions on x.TransId equals x2.TransId
                          select x).ToList();
 
                 t.ForEach(t => { t.IsSynchronized = true; });
                 DatabaseHelper.TransactionSyncLogBulkMerge(AppConfig.Instance().ConnectionString, t);
 
+
+
+                
+
+                //updating product ref
+                foreach (var item in resultInsert)
+                {
+                    var p = db.Products.GetAll().FirstOrDefault(pr => pr.sku.Trim() == item.sku.Trim());
+                    if (p != null)
+                        db.Products.Update(new Products() { productRef = Convert.ToInt32(item.id) }, product => product.id == p.id);
+                    else
+                        Console.WriteLine("NULL POINTER EXCEPT");
+                }
+
+
+                //marking the updated produtc rows as synchronized
+                var trans = db.TransSyncLog.Get(t => t.IsSynchronized == false).ToList();
+                db.TransSyncLog.Update(new TransactionSyncLog() { IsSynchronized = true }, trans => trans.IsSynchronized == false);
+                
 
             }
 

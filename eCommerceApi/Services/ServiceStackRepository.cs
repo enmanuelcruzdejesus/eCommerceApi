@@ -121,6 +121,8 @@ namespace ApiCore.Services
 
         public int Update(TEntity entity, Expression<Func<TEntity, bool>> predicate)
         {
+         
+
             using (var db = _dbFactory.OpenDbConnection())
             {
                 return db.UpdateNonDefaults<TEntity>(entity, predicate);

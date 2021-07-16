@@ -1,4 +1,5 @@
 ﻿using ApiCore;
+using ApiCore.Services;
 using eCommerce.Model.Entities;
 using System;
 using System.Collections.Generic;
@@ -13,11 +14,13 @@ namespace eCommerceApi.Helpers.eCommerce
     {
         RestAPI _restApi;
         WCObject _wc;
-
-        public WooHelper(RestAPI rest) 
+        IRepository<Products> _productRepo;
+        public WooHelper(RestAPI rest, IRepository<Products> productRepo) 
         {
             _restApi = rest;
             _wc = new WCObject(_restApi);
+
+            _productRepo = productRepo;
         }
 
         public async  Task<List<Variation>> VariationBatch(int id ,List<Variation> i , List<Variation> u, List<string> opts = null)
@@ -29,10 +32,7 @@ namespace eCommerceApi.Helpers.eCommerce
 
             var db = AppConfig.Instance().Db;
 
-
             var r = await _wc.Product.Variations.UpdateRange(id, batch);
-
-
 
             if (i != null && i.Count() > 0)
             {
@@ -55,7 +55,19 @@ namespace eCommerceApi.Helpers.eCommerce
                         id = 1,
                         variation = true,
                         visible = true,
-                        position = 0,
+                        name = "Color",
+                        options = opts
+
+                    });
+                }
+                else
+                {
+                    p.attributes = new List<ProductAttributeLine>();
+                    p.attributes.Add(new ProductAttributeLine()
+                    {
+                        id = 1,
+                        variation = true,
+                        visible = true,
                         name = "Color",
                         options = opts
 
@@ -67,8 +79,8 @@ namespace eCommerceApi.Helpers.eCommerce
                     p.variations.Add(Convert.ToInt32(item.id));
                     //updating product reference
 
-                    var v = db.Products.Get(x => x.sku == item.sku).FirstOrDefault();
-                    db.Products.Update(new Products() { productRef = Convert.ToInt32(item.id) }, product => product.id == v.id);
+                    //var v = _productRepo.Get(x => x.sku == item.sku).FirstOrDefault();
+                    // _productRepo.Update(new Products() { productRef = Convert.ToInt32(item.id) }, product => product.id == v.id);
 
                 }
 
@@ -78,7 +90,7 @@ namespace eCommerceApi.Helpers.eCommerce
             }
 
 
-            return   r.update;
+            return  r.update;
 
 
         }

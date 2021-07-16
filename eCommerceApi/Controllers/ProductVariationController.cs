@@ -25,15 +25,17 @@ namespace eCommerceApi.Controllers
         RestAPI _restApi;
         SyncProductVariation _sync;
         IRepository<ProductVariations> _repo;
+        IRepository<Products> _productRepo;
 
         private readonly ILogger<ProductVariationController> _logger;
 
-        public ProductVariationController(ILogger<ProductVariationController> logger,IRepository<ProductVariations> _productVarRepo,IRepository<TransactionSyncLog> tranLog, IRepository<SyncTables> syncTable, RestAPI restAPI)
+        public ProductVariationController(ILogger<ProductVariationController> logger, IRepository<Products> productRepo ,IRepository<ProductVariations> _productVarRepo,IRepository<TransactionSyncLog> tranLog, IRepository<SyncTables> syncTable, RestAPI restAPI)
         {
             _logger = logger;
             _restApi = AppConfig.Instance().Service;
             _repo = _productVarRepo;
-            _sync = new SyncProductVariation(_repo, tranLog, syncTable, restAPI);
+            _productRepo = productRepo;
+            _sync = new SyncProductVariation(_repo,_productRepo, tranLog, syncTable, restAPI);
 
 
 
@@ -56,7 +58,6 @@ namespace eCommerceApi.Controllers
                 _logger.LogError(ex, ex.ToString());
                 return StatusCode(500, ex);
             }
-
 
 
 
@@ -91,10 +92,6 @@ namespace eCommerceApi.Controllers
         {
             try
             {
-
-                //WCObject wc = new WCObject(_restApi);
-                //var r = await  wc.Product.Variations.Get(id, parent, null);
-
                 var r2 = await _restApi.GetRestful("products/" + id.ToString() + "/variations/"+parent, null);
                 return Ok(r2);
 
@@ -123,6 +120,7 @@ namespace eCommerceApi.Controllers
                     regular_price = 21,
                     on_sale = true,
                     purchasable = true,
+                   
 
                     attributes = new List<VariationAttribute>()
                     {
@@ -130,10 +128,8 @@ namespace eCommerceApi.Controllers
                         {
                              id = 1,
                              name = "Color",
-                             option = "Red"
-
-
-
+                             option = "Red",
+ 
                         }
                     },
 
@@ -142,18 +138,20 @@ namespace eCommerceApi.Controllers
                 }, id, null);
 
 
+                 
+
                 var p = await wc.Product.Get(Convert.ToInt32(id));
 
                 p.attributes.Add(new ProductAttributeLine()
                 {
                     id = 1,
                     variation = true,
-                    visible = true, 
+                    visible = true,
                     name = "Color",
-                    options = new List<string>() { "Blue", "Red" }
+                    options = new List<string>() { "Blue" ,"Red"}
 
 
-                });
+            });
 
                 p.variations.Add(Convert.ToInt32(a.id));
 
@@ -180,7 +178,7 @@ namespace eCommerceApi.Controllers
         {
            
 
-            WooHelper wch = new WooHelper(_restApi);
+            WooHelper wch = new WooHelper(_restApi,_productRepo);
 
             var r = await wch.VariationBatch(id, v,null);
 
@@ -214,8 +212,6 @@ namespace eCommerceApi.Controllers
 
 
 
-
-
         [HttpPut]
         public async Task<IActionResult> Update(Variation product)
         {
@@ -224,24 +220,75 @@ namespace eCommerceApi.Controllers
             //looking for his father
             var products = (await wc.Product.GetAll()).Where(p => p.type == "variable");
 
-            int parent = 0;
+            var parent = Convert.ToInt32(product.id);
 
-            foreach (var item in products)
-            {
-                if(item.variations.Any(i => i == product.id))
-                {
-                    parent = Convert.ToInt32(item.id);
-                    break;
 
-                }
-            }
-
-            //product.sku = "9000054";
-            var response = await wc.Product.Variations.Update(Convert.ToInt32(product.id),product, parent, null);
+            var response = await wc.Product.Variations.Update(Convert.ToInt32(product.id), product, parent, null);
 
             return Ok(response);
 
+
+
         }
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            WCObject wc = new WCObject(_restApi);
+            var list = new List<int>() {66253,
+                                        66267,
+                                        66269,
+                                        66276,
+                                        66282,
+                                        66283,
+                                        66284,
+                                        66285,
+                                        66286,
+                                        66297,
+                                        66319,
+                                        66324 };
+
+
+            var vars = new List<int>();
+            List<Variation> vs = new List<Variation>();
+            Dictionary<int, List<int>> dic = new Dictionary<int, List<int>>();
+
+            foreach (var item in list)
+            {
+               var p = await wc.Product.Get(item);
+                vars.AddRange(p.variations);
+                dic.Add(item, vars);
+
+            }
+
+            foreach (var item in dic)
+            {
+                foreach (var x in item.Value)
+                {
+                    var v = await  wc.Product.Variations.Get(x,item.Key);
+                    vs.Add(v);
+                }
+            }
+
+            var db = AppConfig.Instance().Db;
+            var q = (from i in db.Products.GetAll()
+                    join x in vs on i.sku equals x.sku
+                    select i).ToList();
+
+
+            foreach (var item in vs)
+            {
+                var p = q.FirstOrDefault(z => z.sku == item.sku);
+                db.Products.Update(new Products() { productRef = Convert.ToInt32(item.id) }, product => product.id == p.id);
+            }
+
+            
+
+            return Ok(q);
+            
+
+        }
+
 
 
     }

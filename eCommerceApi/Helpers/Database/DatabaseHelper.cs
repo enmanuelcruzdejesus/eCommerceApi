@@ -571,18 +571,18 @@ namespace eCommerceApi.Helpers.Database
             v.price = x.price;
             v.regular_price = x.regular_price;
             v.sale_price = x.sale_price;
-            //v.on_sale = x.on_sale;
-            //v.purchasable = x.purchasable;
-            //v.tax_class = x.tax_class;
-            //v.tax_status = x.tax_status;
-            //v.manage_stock = x.manage_stock;
-            //v.stock_quantity = x.stock_quantity;
-            //v.stock_status = x.stock_status;
-            //v.backorders_allowed = x.backorders_allowed;
-            //v.weight = x.weight;
-            //v.shipping_class = x.shipping_class;
-            //v.shipping_class_id = x.shipping_class_id;
-            //v.status = x.status;
+            v.on_sale = x.on_sale;
+            v.purchasable = x.purchasable;
+            v.tax_class = x.tax_class;
+            v.tax_status = x.tax_status;
+            v.manage_stock = x.manage_stock;
+            v.stock_quantity = x.stock_quantity;
+            v.stock_status = x.stock_status;
+            v.backorders_allowed = x.backorders_allowed;
+            v.weight = x.weight;
+            v.shipping_class = x.shipping_class;
+            v.shipping_class_id = x.shipping_class_id;
+            v.status = x.status;
 
 
             var vt = new WooCommerceNET.WooCommerce.v3.VariationAttribute();

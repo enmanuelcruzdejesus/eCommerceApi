@@ -36,6 +36,9 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
                 if (_Users == null)
                     _Users = new ServiceStackRepository<Users>(_dbFactory);
 
@@ -47,6 +50,9 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
                 if (_Customers == null)
                     _Customers = new ServiceStackRepository<Customers>(_dbFactory);
 
@@ -71,6 +77,10 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if(_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+
                 if (_Products == null)
                     _Products = new ServiceStackRepository<Products>(_dbFactory);
 
@@ -83,6 +93,10 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+
                 if (_ProductVariations == null)
                     _ProductVariations = new ServiceStackRepository<ProductVariations>(_dbFactory);
 
@@ -94,6 +108,10 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+
                 if (_salesOrders == null)
                     _salesOrders = new ServiceStackRepository<Orders>(_dbFactory);
 
@@ -106,6 +124,10 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+
                 if (_salesOrderssDetails == null)
                     _salesOrderssDetails = new ServiceStackRepository<OrderDetails>(_dbFactory);
 
@@ -117,6 +139,10 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+
                 if (_syncTables == null)
                     _syncTables = new ServiceStackRepository<SyncTables>(_dbFactory);
 
@@ -128,6 +154,10 @@ namespace eCommerceApi.DAL.Services
         {
             get
             {
+                if (_dbFactory == null)
+                    _dbFactory = new OrmLiteConnectionFactory(_connectionString, SqlServer2014Dialect.Provider);
+
+
                 if (_transSyncLog == null)
                     _transSyncLog = new ServiceStackRepository<TransactionSyncLog>(_dbFactory);
 
